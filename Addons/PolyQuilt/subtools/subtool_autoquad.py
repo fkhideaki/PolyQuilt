@@ -56,29 +56,36 @@ class SubToolAutoQuad(SubToolEx) :
             self.bmo.UpdateMesh()
 
     @staticmethod
-    def Check( root , target ) :
-        if target.isVert :
+    def Check(root, target):
+        if target.isVert:
             vert = target.element
             edges = [ e for e in vert.link_edges if len(e.link_loops) == 1 ]
-            if len(edges) == 2 :
-                n0 = (edges[0].other_vert( vert ).co - vert.co).normalized()
-                n1 = (edges[1].other_vert( vert).co - vert.co).normalized()
-                if n0.dot( n1 ) > -0.95 :
-                    t0 = edges[0].calc_tangent(edges[0].link_loops[0])
-                    t1 = edges[1].calc_tangent(edges[1].link_loops[0])
-                    t = (t0+t1).normalized()
-                    n = (n0+n1).normalized()
-                    if n.dot( t ) < 0 :
-                        return True
-        elif target.isEdge :
-            if target.element.is_boundary and len(target.element.link_faces) == 1 :
+            if len(edges) != 2:
+                return False;
+            n0 = (edges[0].other_vert(vert).co - vert.co).normalized()
+            n1 = (edges[1].other_vert(vert).co - vert.co).normalized()
+            if n0.dot(n1) <= -0.95:
+                return False;
+            t0 = edges[0].calc_tangent(edges[0].link_loops[0])
+            t1 = edges[1].calc_tangent(edges[1].link_loops[0])
+            t = (t0 + t1).normalized()
+            n = (n0 + n1).normalized()
+            if n.dot(t) < 0:
                 return True
-        elif target.isEmpty :                
-            return True            
-        return False
+            return False
+        elif target.isEdge:
+            if not target.element.is_boundary:
+                return False
+            if len(target.element.link_faces) != 1:
+                return False
+            return True
+        elif target.isEmpty:
+            return True
+        else:
+            return False
 
     @classmethod
-    def DrawHighlight( cls , gizmo , element ) :
+    def DrawHighlight(cls, gizmo, element) :
         is_x_zero = gizmo.preferences.fix_to_x_zero or gizmo.bmo.is_mirror_mode
         if element.isVert :
             verts , normal = cls.MakePolyByVert( element.element , is_x_zero)
@@ -105,7 +112,10 @@ class SubToolAutoQuad(SubToolEx) :
                 rv = [ mat @ mathutils.Vector( ( -v.x,v.y,v.z )) for v in rv ]
                 rv.append( rv[0] )
 
-            draw_highlight = element.DrawFunc( gizmo.bmo.obj , gizmo.preferences.highlight_color , gizmo.preferences )
+            draw_highlight = element.DrawFunc(
+                gizmo.bmo.obj,
+                gizmo.preferences.highlight_color,
+                gizmo.preferences)
 
             def Draw() :
                 if element.isVert :

@@ -71,7 +71,6 @@ class QSnap :
     def snap_objects( context ) :
         active_obj = context.active_object        
         objects = context.visible_objects
-#           objects = context.selected_objects
         objects_array = [obj for obj in objects if obj != active_obj and obj.type == 'MESH']
         return objects_array
 

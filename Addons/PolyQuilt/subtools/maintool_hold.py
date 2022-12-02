@@ -129,21 +129,29 @@ class MainToolHold(MainTool) :
             else:
                 self.LMBEvent.Draw( None )
 
-    def OnDraw3D( self , context  ) :
+    def OnDraw3D(self, context):
+        target = self.currentTarget
+        if not target.isEdge:
+            return
         width = self.preferences.highlight_line_width
-        color = self.preferences.highlight_color        
-        if self.LMBEvent.isPresure :
+        if self.LMBEvent.isPresure:
             color = self.preferences.makepoly_color 
-        else :
-            if self.currentTarget.isEdge : 
-                if SubToolAutoQuad.Check( None , self.currentTarget ) :
-                    drawAutoQuad = SubToolAutoQuad.DrawHighlight( self,self.currentTarget )
-                    if drawAutoQuad :
-                        drawAutoQuad()
-        if self.currentTarget.isEdge :                    
-            edges , verts = self.bmo.findEdgeLoop( self.currentTarget.element )
-        else :
-            edges = []
-        for edge in edges :
+        else:
+            color = self.preferences.highlight_color
+
+        if not self.LMBEvent.isPresure:
+            if SubToolAutoQuad.Check(None, target):
+                drawAutoQuad = SubToolAutoQuad.DrawHighlight(self, target)
+                if drawAutoQuad:
+                    drawAutoQuad()
+
+        edges, verts = self.bmo.findEdgeLoop(target.element)
+        for edge in edges:
             vs = [ self.bmo.obj.matrix_world @ v.co for v in edge.verts ] 
-            draw_util.draw_lines3D( bpy.context , vs , color , width , primitiveType = 'LINES' , hide_alpha = 0.5 )        
+            draw_util.draw_lines3D(
+                bpy.context,
+                vs,
+                color,
+                width,
+                primitiveType = 'LINES',
+                hide_alpha = 0.5)        
