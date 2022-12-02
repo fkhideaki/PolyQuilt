@@ -49,8 +49,25 @@ def draw_settings_ui(context, layout, tool  , ui ):
         row.prop(props, "snap_mode" , text = "Snap" , expand = True , icon_only = False )
 
 #       layout.prop(context.active_object.data, "use_mirror_x", toggle = toggle , icon_only = False, icon_value = custom_icon("icon_opt_mirror") )
-    layout.prop(context.active_object.data, "use_mirror_x", toggle = True , icon_only = False , icon = "MOD_MIRROR" )
-    layout.prop( preferences, "fix_to_x_zero", toggle = True , text = "Fix X=0" , icon_only = False, icon_value = custom_icon("icon_opt_x0") )
+    layout.prop(
+        context.active_object.data,
+        "use_mirror_x",
+        toggle = True,
+        icon_only = False,
+        icon = "MOD_MIRROR")
+    layout.prop(
+        preferences,
+        "fix_to_x_zero",
+        toggle = True,
+        text = "Fix X=0",
+        icon_only = False,
+        icon_value = custom_icon("icon_opt_x0"))
+    layout.prop(
+        preferences,
+        "fix_sharp_edge",
+        toggle = True,
+        text = "Fix Sharp Edge",
+        icon_only = False)
 
     if "MASTER" in ui or "EXTRUDE" in ui :
         row = layout.row(align=True)
@@ -140,7 +157,21 @@ class VIEW3D_PT_tools_polyquilt_options( Panel):
         row.prop(props, "snap_mode" , text = "Snap" , expand = True , icon_only = False )
 
         layout.label( text = "Fix X=0" )
-        layout.prop( preferences, "fix_to_x_zero", toggle = True , text = "" , icon_only = True, icon_value = custom_icon("icon_opt_x0") )
+        layout.prop(
+            preferences,
+            "fix_to_x_zero",
+            toggle = True,
+            text = "",
+            icon_only = True,
+            icon_value = custom_icon("icon_opt_x0"))
+
+        layout.label(text = "Fix Sharp Edge")
+        layout.prop(
+            preferences,
+            "fix_sharp_edge",
+            toggle = True,
+            text = "On",
+            icon_only = False)
 
         layout.label( text = "Extrude" )
         layout.prop(props, "extrude_mode" , text = "EXTRUDE" , expand = True )

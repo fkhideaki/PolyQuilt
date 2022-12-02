@@ -236,12 +236,18 @@ class PolyQuiltPreferences(AddonPreferences):
         description="Brush Strength",
         default=0.5,
         min=0.0,
-        max=1.0)    
+        max=1.0)
 
     fix_to_x_zero : bpy.props.BoolProperty(
               name = "fix_to_x_zero" ,
-              default = False ,
+              default = True,
               description="Fix X=0",
+            )
+
+    fix_sharp_edge : bpy.props.BoolProperty(
+              name = "fix_sharp_edge" ,
+              default = True,
+              description="Fix Sharp Edge",
             )
 
     space_drag_op : bpy.props.EnumProperty(
