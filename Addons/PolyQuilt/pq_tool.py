@@ -30,7 +30,13 @@ class ToolPolyQuiltBase(WorkSpaceTool):
     @staticmethod
     def tool_keymaps( main_tool , shift = ["NONE"] , ctrl = ["NONE"] , alt = ["NONE"] ) :
         def keyitem( mods , tool ) :
-            key = {"type": 'LEFTMOUSE', "value": 'PRESS', "shift" : 's' in mods  , "ctrl" : 'c' in mods , "alt" : 'a' in mods , "oskey": 'o' in mods }
+            key = {
+                "type": 'LEFTMOUSE',
+                "value": 'PRESS',
+                "shift" : 's' in mods,
+                "ctrl" : 'c' in mods,
+                "alt" : 'a' in mods,
+                "oskey": 'o' in mods}
             prop = {"properties": [("tool_mode", tool[0] )]}
             if len(tool) > 1 and tool[0] == 'BRUSH' :
                 prop["properties"].append( ('brush_type' ,  tool[1] ) )
@@ -150,7 +156,7 @@ class ToolPolyQuiltBrush(ToolPolyQuiltBase):
     # The prefix of the idname should be your add-on name.
     bl_idname = "mesh_tool.poly_quilt_brush"
     bl_label = "PolyQuilt:Brush"
-    bl_description = ( "Brush Tool" )
+    bl_description = ("Brush Tool")
     bl_icon = os.path.join(os.path.join(os.path.dirname(__file__), "icons") , "addon.poly_quilt_brush_icon")
     bl_widget = "MESH_GGT_PQ_Brush"
     bl_keymap = ToolPolyQuiltBase.tool_keymaps(
