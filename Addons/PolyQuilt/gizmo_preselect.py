@@ -41,14 +41,14 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         self.bmo = None        
         self.currentElement = ElementItem.Empty()
 
-    def init( self , context , tool ) :
+    def init(self, context, tool) :
         self.tool = tool
         self.maintool = maintools[tool.pq_main_tool]
         self.subtool = self.maintool
         self.region = context.region_data
         self.bmo = QMesh( context.active_object , self.preferences )
         self.keyitem = None
-        if self.subtool :
+        if self.subtool:
             context.window.cursor_set( self.subtool.GetCursor() )
 
     def exit( self , context, cancel) :
