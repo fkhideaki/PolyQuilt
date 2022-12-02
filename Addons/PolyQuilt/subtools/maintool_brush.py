@@ -64,18 +64,18 @@ class MainToolBrush(MainTool) :
         }
 
     @staticmethod
-    def LMBEventCallback(self , event ):
+    def LMBEventCallback(self, event):
         self.debugStr = str(event.type)
         if event.type in self.callback.keys() :
-            tools = [ t( event.event , self) for t in self.callback[event.type] if t.Check( self , self.currentTarget ) ]
-            if tools :
-                self.SetSubTool( tools )
+            tools = [ t(event.event, self) for t in self.callback[event.type] if t.Check( self , self.currentTarget ) ]
+            if tools:
+                self.SetSubTool(tools)
             self.isExit = True
 
     @classmethod
     def DrawHighlight( cls , gizmo , element ) :
-        if SubToolAutoQuad.Check( None , element ) :
-            drawAutoQuad = SubToolAutoQuad.DrawHighlight(gizmo,element)
+        if SubToolAutoQuad.Check(None, element):
+            drawAutoQuad = SubToolAutoQuad.DrawHighlight(gizmo, element)
         else :
             drawAutoQuad = None
 

@@ -50,10 +50,10 @@ class MainToolHold(MainTool) :
         elif event.type == MBEventType.Release :
             self.isExit = True
 
-        elif event.type == MBEventType.Click :
+        elif event.type == MBEventType.Click:
             if self.currentTarget.isVert or self.currentTarget.isEdge or self.currentTarget.isEmpty:
-                if SubToolAutoQuad.Check( self , self.currentTarget) :
-                    self.SetSubTool( SubToolAutoQuad( self ))
+                if SubToolAutoQuad.Check( self , self.currentTarget):
+                    self.SetSubTool(SubToolAutoQuad(self))
             self.isExit = True
 
         elif event.type == MBEventType.LongClick :
@@ -102,8 +102,8 @@ class MainToolHold(MainTool) :
 
     @classmethod
     def DrawHighlight( cls , gizmo , element ) :
-        if SubToolAutoQuad.Check( None , element ) :
-            drawAutoQuad = SubToolAutoQuad.DrawHighlight(gizmo,element)
+        if SubToolAutoQuad.Check(None, element) :
+            drawAutoQuad = SubToolAutoQuad.DrawHighlight(gizmo, element)
         else :
             drawAutoQuad = None
 

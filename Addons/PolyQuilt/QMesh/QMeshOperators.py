@@ -214,7 +214,7 @@ class QMeshOperators :
 
     def AddFace( self , verts , normal = None , is_mirror = None ) :
         self.ensure_lookup_table()
-        face = self.bm.faces.new( verts )
+        face = self.bm.faces.new(verts)
 
         linkCount = 0
         for loop in [ l for l in face.loops if not l.edge.is_boundary ] :

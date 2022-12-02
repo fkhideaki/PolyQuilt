@@ -25,10 +25,10 @@ from ..QMesh import *
 from ..utils.dpi import *
 from .subtool import SubToolEx
 
-class SubToolAutoQuad(SubToolEx) :
+class SubToolAutoQuad(SubToolEx):
     name = "AutoQuadTool"
 
-    def __init__(self , event , root ) :
+    def __init__(self, event, root):
         super().__init__(root)
         is_x_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
 
@@ -39,21 +39,22 @@ class SubToolAutoQuad(SubToolEx) :
         elif self.currentTarget.isEmpty :
             verts , normal = self.MakePolyByEmpty( self.bmo , self.startMousePos )
 
-        def makeVert( p ) :
-            if isinstance( p , bmesh.types.BMVert ) :
+        def makeVert(p):
+            if isinstance(p, bmesh.types.BMVert):
                 return p
-            else :
-                v = QSnap.adjust_local( self.bmo.obj.matrix_world , p , self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode )
-                vt = self.bmo.AddVertex(v)
-                self.bmo.UpdateMesh()
-                return vt
-
-        if verts != None :
-            vs = [ makeVert(v) for v in verts ]
-            vs = sorted(set(vs), key=vs.index)
-            face = self.bmo.AddFace( vs , normal )
-            face.select_set(True)
+            v = QSnap.adjust_local( self.bmo.obj.matrix_world , p , self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode )
+            vt = self.bmo.AddVertex(v)
             self.bmo.UpdateMesh()
+            return vt
+
+        if verts == None:
+            return
+
+        vs = [makeVert(v) for v in verts]
+        vs = sorted(set(vs), key=vs.index)
+        face = self.bmo.AddFace(vs, normal)
+        face.select_set(True)
+        self.bmo.UpdateMesh()
 
     @staticmethod
     def Check(root, target):
@@ -93,48 +94,49 @@ class SubToolAutoQuad(SubToolEx) :
             verts , normal = cls.MakePolyByEdge( element.element , is_x_zero)
         elif element.isEmpty :
             verts , normal = cls.MakePolyByEmpty( gizmo.bmo , gizmo.mouse_pos )
-        if verts != None :
-            col = gizmo.preferences.makepoly_color        
-            col = (col[0],col[1],col[2],col[3] * 0.5)            
-            mat = gizmo.bmo.obj.matrix_world
 
-            def calcVert( v ) :
-                if isinstance( v , mathutils.Vector ) :
-                    return  QSnap.adjust_point( mat @ v , is_x_zero )
-                else :
-                    return mat @ v.co
+        if verts == None:
+            def Dummy():
+                pass
+            return Dummy
 
-            vs = [ calcVert(v) for v in verts ]
-            vs.append( vs[0] )
+        col = gizmo.preferences.makepoly_color        
+        col = (col[0],col[1],col[2],col[3] * 0.5)            
+        mat = gizmo.bmo.obj.matrix_world
+
+        def calcVert(v) :
+            if isinstance(v, mathutils.Vector):
+                return  QSnap.adjust_point( mat @ v , is_x_zero )
+            else :
+                return mat @ v.co
+
+        vs = [ calcVert(v) for v in verts ]
+        vs.append( vs[0] )
+        if gizmo.bmo.is_mirror_mode :
+            inv = mat.inverted()
+            rv = [ inv @ v for v in vs ]
+            rv = [ mat @ mathutils.Vector( ( -v.x,v.y,v.z )) for v in rv ]
+            rv.append( rv[0] )
+
+        draw_highlight = element.DrawFunc(
+            gizmo.bmo.obj,
+            gizmo.preferences.highlight_color,
+            gizmo.preferences)
+
+        def Draw():
+            if element.isVert :
+                draw_highlight()
+            elif element.isEdge :
+                draw_highlight()
+            draw_util.draw_Poly3D( bpy.context , vs , col , 0.5 )
+            draw_util.draw_lines3D( bpy.context , vs , (col[0],col[1],col[2],col[3] * 1)  , 2 , 0 )
             if gizmo.bmo.is_mirror_mode :
-                inv = mat.inverted()
-                rv = [ inv @ v for v in vs ]
-                rv = [ mat @ mathutils.Vector( ( -v.x,v.y,v.z )) for v in rv ]
-                rv.append( rv[0] )
-
-            draw_highlight = element.DrawFunc(
-                gizmo.bmo.obj,
-                gizmo.preferences.highlight_color,
-                gizmo.preferences)
-
-            def Draw() :
-                if element.isVert :
-                    draw_highlight()
-                elif element.isEdge :
-                    draw_highlight()
-                draw_util.draw_Poly3D( bpy.context , vs , col , 0.5 )
-                draw_util.draw_lines3D( bpy.context , vs , (col[0],col[1],col[2],col[3] * 1)  , 2 , 0 )
-                if gizmo.bmo.is_mirror_mode :
-                    draw_util.draw_Poly3D( bpy.context , rv , (col[0],col[1],col[2],col[3] * 0.25) , 0.5 )
-                    draw_util.draw_lines3D( bpy.context , rv , (col[0],col[1],col[2],0.5) , 2 , 0.5 )
-            return Draw
-        def Dummy() :
-            pass
-        return Dummy
+                draw_util.draw_Poly3D( bpy.context , rv , (col[0],col[1],col[2],col[3] * 0.25) , 0.5 )
+                draw_util.draw_lines3D( bpy.context , rv , (col[0],col[1],col[2],0.5) , 2 , 0.5 )
+        return Draw
 
     def OnUpdate( self , context , event ) :
         return 'FINISHED'
-
 
 
     @classmethod
@@ -187,13 +189,13 @@ class SubToolAutoQuad(SubToolEx) :
         return None
 
     @classmethod
-    def MakePolyByEdge( cls , edge , is_x_zero ) :
+    def MakePolyByEdge(cls, edge, is_x_zero):
         len = edge.calc_length()
         loop = edge.link_loops
-        if loop[0].vert == edge.verts[0] :
+        if loop[0].vert == edge.verts[0]:
             v0 = edge.verts[0]
             v1 = edge.verts[1]
-        else :
+        else:
             v0 = edge.verts[1]
             v1 = edge.verts[0]
 
@@ -280,8 +282,6 @@ class SubToolAutoQuad(SubToolEx) :
             normal = pqutil.getViewDir()
 
         return verts , normal
-
-
 
     @classmethod
     def MakePolyByEmpty( cls , bmo , startPos ) :

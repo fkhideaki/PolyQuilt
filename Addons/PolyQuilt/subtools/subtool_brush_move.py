@@ -125,7 +125,7 @@ class SubToolBrushMove(SubToolEx) :
 
         return { v : x for v,x in coords.items() if x }
 
-    def UpdateVerts( self , context ) :
+    def UpdateVerts(self, context) :
         is_fix_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode        
         region = context.region
         rv3d = context.region_data
