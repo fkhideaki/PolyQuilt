@@ -75,7 +75,7 @@ class SubToolBrushRelax(SubToolEx) :
     def OnDraw3D( self , context  ) :
         pass
 
-    def CollectVerts(self, context, coord, fix_sharp) :
+    def CollectVerts(self, context, coord, fix_sharp, fix_bound):
         rv3d = context.region_data
         region = context.region
         halfW = region.width / 2.0
@@ -110,10 +110,14 @@ class SubToolBrushRelax(SubToolEx) :
             if not is_occlusion:
                 return None
 
-            if fix_sharp:
+            if fix_sharp or fix_bound:
                 for e in vt.link_edges:
-                    if not e.smooth:
-                        return None
+                    if fix_sharp:
+                        if not e.smooth:
+                            return None
+                    if fix_bound:
+                        if e.is_boundary:
+                            return None
 
             pv = matrix @ co.to_4d()
             w = pv.w
@@ -154,11 +158,12 @@ class SubToolBrushRelax(SubToolEx) :
     def DoRelax(self, context, coord) :
         is_fix_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
         fix_sharp = self.preferences.fix_sharp_edge
-        coords = self.CollectVerts(context, coord, fix_sharp)
+        fix_bound = self.preferences.fix_bound_edge
+        coords = self.CollectVerts(context, coord, fix_sharp, fix_bound)
         if coords :
             self.dirty = True
         if self.bmo.is_mirror_mode:
-            mirrors = { vert : self.bmo.find_mirror( vert ) for vert , coord in coords.items() }
+            mirrors = {vert : self.bmo.find_mirror( vert ) for vert, coord in coords.items()}
 
         if self.effective_boundary :
             boundary = { c for c in coords.keys() if c.is_boundary }

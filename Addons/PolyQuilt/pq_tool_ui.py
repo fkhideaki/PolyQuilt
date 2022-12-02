@@ -68,6 +68,12 @@ def draw_settings_ui(context, layout, tool  , ui ):
         toggle = True,
         text = "Fix Sharp Edge",
         icon_only = False)
+    layout.prop(
+        preferences,
+        "fix_bound_edge",
+        toggle = True,
+        text = "Fix Bound Edge",
+        icon_only = False)
 
     if "MASTER" in ui or "EXTRUDE" in ui :
         row = layout.row(align=True)
@@ -169,6 +175,14 @@ class VIEW3D_PT_tools_polyquilt_options( Panel):
         layout.prop(
             preferences,
             "fix_sharp_edge",
+            toggle = True,
+            text = "On",
+            icon_only = False)
+
+        layout.label(text = "Fix Bound Edge")
+        layout.prop(
+            preferences,
+            "fix_bound_edge",
             toggle = True,
             text = "On",
             icon_only = False)

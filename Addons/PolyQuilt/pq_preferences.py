@@ -250,6 +250,12 @@ class PolyQuiltPreferences(AddonPreferences):
               description="Fix Sharp Edge",
             )
 
+    fix_bound_edge : bpy.props.BoolProperty(
+              name = "fix_bound_edge" ,
+              default = True,
+              description="Fix Bound Edge",
+            )
+
     space_drag_op : bpy.props.EnumProperty(
         name="Space Drag Operation",
         description="Space Drag Operation",
