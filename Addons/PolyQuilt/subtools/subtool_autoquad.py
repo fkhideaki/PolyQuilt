@@ -33,22 +33,25 @@ class SubToolAutoQuad(SubToolEx):
         is_x_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
 
         if self.currentTarget.isVert :
-            verts , normal = self.MakePolyByVert( self.currentTarget.element , is_x_zero)
+            verts, normal = self.MakePolyByVert(self.currentTarget.element, is_x_zero)
         elif self.currentTarget.isEdge :
-            verts , normal = self.MakePolyByEdge( self.currentTarget.element , is_x_zero)
+            verts, normal = self.MakePolyByEdge(self.currentTarget.element, is_x_zero)
         elif self.currentTarget.isEmpty :
-            verts , normal = self.MakePolyByEmpty( self.bmo , self.startMousePos )
+            verts, normal = self.MakePolyByEmpty(self.bmo, self.startMousePos)
+
+        if verts == None:
+            return
 
         def makeVert(p):
             if isinstance(p, bmesh.types.BMVert):
                 return p
-            v = QSnap.adjust_local( self.bmo.obj.matrix_world , p , self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode )
+            v = QSnap.adjust_local(
+                self.bmo.obj.matrix_world,
+                p,
+                self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode)
             vt = self.bmo.AddVertex(v)
             self.bmo.UpdateMesh()
             return vt
-
-        if verts == None:
-            return
 
         vs = [makeVert(v) for v in verts]
         vs = sorted(set(vs), key=vs.index)
@@ -89,11 +92,11 @@ class SubToolAutoQuad(SubToolEx):
     def DrawHighlight(cls, gizmo, element) :
         is_x_zero = gizmo.preferences.fix_to_x_zero or gizmo.bmo.is_mirror_mode
         if element.isVert :
-            verts , normal = cls.MakePolyByVert( element.element , is_x_zero)
+            verts , normal = cls.MakePolyByVert(element.element, is_x_zero)
         elif element.isEdge :
-            verts , normal = cls.MakePolyByEdge( element.element , is_x_zero)
+            verts , normal = cls.MakePolyByEdge(element.element, is_x_zero)
         elif element.isEmpty :
-            verts , normal = cls.MakePolyByEmpty( gizmo.bmo , gizmo.mouse_pos )
+            verts , normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
 
         if verts == None:
             def Dummy():
@@ -101,17 +104,17 @@ class SubToolAutoQuad(SubToolEx):
             return Dummy
 
         col = gizmo.preferences.makepoly_color        
-        col = (col[0],col[1],col[2],col[3] * 0.5)            
+        col = (col[0], col[1], col[2], col[3] * 0.5)            
         mat = gizmo.bmo.obj.matrix_world
 
-        def calcVert(v) :
+        def calcVert(v):
             if isinstance(v, mathutils.Vector):
                 return  QSnap.adjust_point( mat @ v , is_x_zero )
             else :
                 return mat @ v.co
 
-        vs = [ calcVert(v) for v in verts ]
-        vs.append( vs[0] )
+        vs = [calcVert(v) for v in verts]
+        vs.append(vs[0])
         if gizmo.bmo.is_mirror_mode :
             inv = mat.inverted()
             rv = [ inv @ v for v in vs ]
@@ -140,35 +143,38 @@ class SubToolAutoQuad(SubToolEx):
 
 
     @classmethod
-    def CalaTangent( cls , edge , vert ) :
-        return -edge.calc_tangent( edge.link_loops[0] )
+    def CalaTangent(cls, edge, vert) :
+        return -edge.calc_tangent(edge.link_loops[0])
 
     @classmethod
-    def is_x_zero( cls , p ) :
-        return abs( p[0] ) <=  bpy.context.scene.tool_settings.double_threshold 
+    def is_x_zero(cls, p):
+        return abs(p[0]) <= bpy.context.scene.tool_settings.double_threshold 
 
     @classmethod
-    def check_z_zero( cls , v , p , is_x_zero ) :
-        if is_x_zero :
-            if cls.is_x_zero(p) :
-                p.x = 0.0
-                return p
+    def check_z_zero(cls, v, p, is_x_zero):
+        if not is_x_zero:
+            return p
 
-            if cls.is_x_zero(v) :
-                p.x = 0.0
-                return p
+        if cls.is_x_zero(p):
+            p.x = 0.0
+            return p
 
-            if ( v.x > 0 and p.x < 0 ) or ( v.x < 0 and p.x > 0 ) :
-                ray = pqutil.Ray( v , p - v )            
-                plane = pqutil.Plane( mathutils.Vector( (0,0,0) ) , mathutils.Vector( ( 1 , 0 , 0 ) ) )
-                r = plane.intersect_ray( ray )
-                return r
-        return p
+        if cls.is_x_zero(v):
+            p.x = 0.0
+            return p
 
+        if not ((v.x > 0 and p.x < 0) or (v.x < 0 and p.x > 0)):
+            return p
+
+        ray = pqutil.Ray(v, p - v)
+        po = mathutils.Vector((0, 0, 0))
+        pv = mathutils.Vector((1, 0, 0))
+        plane = pqutil.Plane(po, pv)
+        return plane.intersect_ray(ray)
 
     @classmethod
-    def FindBoundaryEdge( cls , edge , vert , is_x_zero ) :
-        if is_x_zero and cls.is_x_zero( vert.co ) :
+    def FindBoundaryEdge(cls, edge, vert, is_x_zero):
+        if is_x_zero and cls.is_x_zero(vert.co):
             return None
 
         manifolds = [ e for e in vert.link_edges if not e.link_faces and e != edge ]
@@ -191,6 +197,34 @@ class SubToolAutoQuad(SubToolEx):
     @classmethod
     def MakePolyByEdge(cls, edge, is_x_zero):
         len = edge.calc_length()
+        v0, v1 = cls.GetEdgeVerts(edge)
+
+        # 境界エッジを探す
+        e0 = cls.FindBoundaryEdge(edge, v0, is_x_zero)
+        e1 = cls.FindBoundaryEdge(edge, v1, is_x_zero)
+
+        if e0 == None and e1 != None :
+            return cls.Make_Isosceles_Trapezoid(edge, e1, v1, is_x_zero)
+        if e0 != None and e1 == None :
+            return cls.Make_Isosceles_Trapezoid(edge, e0, v0, is_x_zero)
+
+        if e0 and e1:
+            p0 = e0.other_vert(v0)
+            p1 = e1.other_vert(v1)
+            if p0 == p1:
+                return  [v1, v0, p0], None
+        elif not e0 and not e1:
+            tl0 = cls.CalaTangent(edge, v0) * len
+            tl1 = cls.CalaTangent(edge, v1) * len
+            p0 = cls.check_z_zero(v0.co, v0.co + tl0, is_x_zero)
+            p1 = cls.check_z_zero(v1.co, v1.co + tl1, is_x_zero)
+
+        verts = [ v for v in [v1, v0, p0, p1] if v != None ]
+
+        return verts, None
+
+    @classmethod
+    def GetEdgeVerts(cls, edge):
         loop = edge.link_loops
         if loop[0].vert == edge.verts[0]:
             v0 = edge.verts[0]
@@ -198,28 +232,7 @@ class SubToolAutoQuad(SubToolEx):
         else:
             v0 = edge.verts[1]
             v1 = edge.verts[0]
-
-        # 境界エッジを探す
-        e0 = cls.FindBoundaryEdge( edge , v0 , is_x_zero )
-        e1 = cls.FindBoundaryEdge( edge , v1 , is_x_zero )
-
-        if e0 == None and e1 != None :
-            return cls.Make_Isosceles_Trapezoid( edge ,e1, v1 , is_x_zero )
-        if e0 != None and e1 == None :
-            return cls.Make_Isosceles_Trapezoid( edge ,e0, v0 , is_x_zero )
-
-        if e0 and e1:
-            p0 = e0.other_vert(v0)
-            p1 = e1.other_vert(v1)
-            if p0 == p1 :
-                return  [v1,v0,p0] , None
-        elif not e0 and not e1:
-            p0 = cls.check_z_zero( v0.co , v0.co + cls.CalaTangent(edge,v0) * len , is_x_zero )
-            p1 = cls.check_z_zero( v1.co , v1.co + cls.CalaTangent(edge,v1) * len , is_x_zero )
-
-        verts = [ v for v in [v1,v0,p0,p1] if v != None ]
-
-        return verts , None
+        return v0, v1
 
     @classmethod
     def Make_Isosceles_Trapezoid( cls , edge , boundary_edge , vert , is_x_zero ) :
