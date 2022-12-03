@@ -117,7 +117,7 @@ class PolyQuiltPreferences(AddonPreferences):
     makepoly_color : FloatVectorProperty(
         name="MakePolyColor",
         description="MakePoly Color",
-        default=(0.4,0.7,0.9,1.0),
+        default=(0.4, 0.7, 0.9, 1.0),
         min=0.0,
         max=1.0,
         size=4,

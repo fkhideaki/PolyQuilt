@@ -40,7 +40,7 @@ class SubToolBrushRelax(SubToolEx) :
             self.effective_boundary = False
 
     @staticmethod
-    def Check( root , target ) :
+    def Check(root, target):
         return True
 
     @classmethod

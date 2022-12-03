@@ -120,7 +120,7 @@ def draw_poly2D( verts , color = (1,1,1,1) ):
 def begin2d() :
     bgl.glDisable(bgl.GL_DEPTH_TEST)
 
-def draw_lines3D( context , verts , color = (1,1,1,1) , width : float = 1.0 , hide_alpha : float = 1.0 , primitiveType = 'LINE_STRIP' ):
+def draw_lines3D(context, verts, color = (1,1,1,1), width : float = 1.0 , hide_alpha : float = 1.0 , primitiveType = 'LINE_STRIP' ):
     bgl.glEnable(bgl.GL_LINE_SMOOTH)
     bgl.glLineWidth(width )    
     bgl.glEnable(bgl.GL_BLEND)
@@ -157,7 +157,7 @@ def draw_lines3D( context , verts , color = (1,1,1,1) , width : float = 1.0 , hi
 def draw_Poly3D( context , verts , color = (1,1,1,1) , hide_alpha = 0.5 ):
     bgl.glEnable(bgl.GL_BLEND)
     bgl.glEnable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthFunc( bgl.GL_LEQUAL )
+    bgl.glDepthFunc(bgl.GL_LEQUAL)
     bgl.glDepthMask(bgl.GL_FALSE)
     bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL)
     bgl.glPolygonOffset(1.0, 1.0)
