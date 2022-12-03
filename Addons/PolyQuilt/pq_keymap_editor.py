@@ -26,7 +26,7 @@ def draw_tool_keymap( layout ,keyconfing,keymapname ) :
     cnt = 0
 
     for item in reversed(keymap.keymap_items) :
-        cnt = max(cnt, (item.oskey, item.shift, item.ctrl, item.alt).count(True) )
+        cnt = max(cnt, (item.oskey, item.shift, item.ctrl, item.alt).count(True))
 
     for item in reversed(keymap.keymap_items):
         if not (True in (item.oskey, item.shift, item.ctrl, item.alt)):

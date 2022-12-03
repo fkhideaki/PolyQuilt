@@ -35,7 +35,7 @@ import bpy.utils.previews
 
 __all__ = [
     'MESH_OT_poly_quilt',
-    'MESH_OT_poly_quilt_daemon', 
+    'MESH_OT_poly_quilt_daemon',
     'MESH_OT_poly_quilt_brush_size']
 
 if not __package__:

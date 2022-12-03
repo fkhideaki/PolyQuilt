@@ -159,9 +159,7 @@ class ToolPolyQuiltBrush(ToolPolyQuiltBase):
     bl_description = ("Brush Tool")
     bl_icon = os.path.join(os.path.join(os.path.dirname(__file__), "icons") , "addon.poly_quilt_brush_icon")
     bl_widget = "MESH_GGT_PQ_Brush"
-    bl_keymap = ToolPolyQuiltBase.tool_keymaps(
-        [pq_main_tool],
-        shift = ['BRUSH']) 
+    bl_keymap = ToolPolyQuiltBase.tool_keymaps([pq_main_tool], shift = ['BRUSH']) 
 
 class ToolPolyQuiltSeam(ToolPolyQuiltBase):
     pq_main_tool = 'MARK_SEAM'

@@ -332,7 +332,7 @@ def make_mat4_ortho( left, right, bottom, top, _near = - 100, _far = 100) :
 class push_pop_projection2D:
     def __enter__(self):
         region = bpy.context.region   
-        matrix = make_mat4_ortho( 0 , region.width , 0 , region.height )
+        matrix = make_mat4_ortho(0, region.width, 0, region.height)
         gpu.matrix.push()
         gpu.matrix.push_projection()
         gpu.matrix.load_projection_matrix( matrix )

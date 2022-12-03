@@ -44,35 +44,53 @@ class SubToolBrushRelax(SubToolEx) :
         return True
 
     @classmethod
-    def DrawHighlight( cls , gizmo , element ) :
-        def Draw() :
+    def DrawHighlight(cls, gizmo, element):
+        def Draw():
             radius = gizmo.preferences.brush_size * dpm()
             strength = gizmo.preferences.brush_strength  
-            with draw_util.push_pop_projection2D() :
-                draw_util.draw_circle2D( gizmo.mouse_pos , radius * strength , color = (1,0.25,0.25,0.25), fill = False , subdivide = 64 , dpi= False )
-                draw_util.draw_circle2D( gizmo.mouse_pos , radius , color = (1,1,1,0.5), fill = False , subdivide = 64 , dpi= False )
+            with draw_util.push_pop_projection2D():
+                draw_util.draw_circle2D(
+                    gizmo.mouse_pos,
+                    radius * strength,
+                    color = (1, 0.25, 0.25, 0.25),
+                    fill = False,
+                    subdivide = 64,
+                    dpi = False)
+                draw_util.draw_circle2D(
+                    gizmo.mouse_pos,
+                    radius,
+                    color = (1, 1, 1, 0.5),
+                    fill = False,
+                    subdivide = 64,
+                    dpi = False)
         return Draw
 
-    def OnUpdate( self , context , event ) :
+    def OnUpdate(self, context, event):
         if event.type == 'MOUSEMOVE':
-            self.DoRelax( context ,self.mouse_pos )
-        elif event.type == self.rootTool.buttonType : 
-            if event.value == 'RELEASE' :
-                if self.dirty  :
+            self.DoRelax(context, self.mouse_pos)
+        elif event.type == self.rootTool.buttonType: 
+            if event.value == 'RELEASE':
+                if self.dirty:
                     self.bmo.UpdateMesh()
                     return 'FINISHED'
                 return 'CANCELLED'
-        elif event.value == 'RELEASE' :
+        elif event.value == 'RELEASE':
             self.repeat = False
 
         return 'RUNNING_MODAL'
 
-    def OnDraw( self , context  ) :
+    def OnDraw(self, context):
         width = 2.0 if self.effective_boundary else 1.0
-        draw_util.draw_circle2D( self.mouse_pos , self.radius , color = (1,1,1,1), fill = False , subdivide = 64 , dpi= False , width = width )
-        pass
+        draw_util.draw_circle2D(
+            self.mouse_pos,
+            self.radius,
+            color = (1, 1, 1, 1),
+            fill = False,
+            subdivide = 64,
+            dpi= False,
+            width = width)
 
-    def OnDraw3D( self , context  ) :
+    def OnDraw3D(self, context):
         pass
 
     def CollectVerts(self, context, coord, fix_sharp, fix_bound):
@@ -86,7 +104,7 @@ class SubToolBrushRelax(SubToolEx) :
         bm = self.bmo.bm
         verts = bm.verts
 
-        select_stack = SelectStack( context , bm )
+        select_stack = SelectStack(context, bm)
 
         select_stack.push()
         select_stack.select_mode(True, False, False)
@@ -103,7 +121,7 @@ class SubToolBrushRelax(SubToolEx) :
         def ProjVert(vt):
             co = vt.co
             is_occlusion = occlusion_tbl_get(vt)
-            if is_occlusion == None :
+            if is_occlusion == None:
                 is_occlusion = is_target(matrix_world @ co)
                 self.occlusion_tbl[vt] = is_occlusion
 
@@ -121,9 +139,11 @@ class SubToolBrushRelax(SubToolEx) :
 
             pv = matrix @ co.to_4d()
             w = pv.w
-            if w < 0.0 :
+            if w < 0.0:
                 return None
-            p = new_vec( (pv.x * halfW / w + halfW , pv.y * halfH / w + halfH ) )
+            px = pv.x * halfW / w + halfW
+            py = pv.y * halfH / w + halfH
+            p = new_vec((px, py))
             r = (coord - p).length
             if r > radius :
                 return None
@@ -160,16 +180,16 @@ class SubToolBrushRelax(SubToolEx) :
         fix_sharp = self.preferences.fix_sharp_edge
         fix_bound = self.preferences.fix_bound_edge
         coords = self.CollectVerts(context, coord, fix_sharp, fix_bound)
-        if coords :
+        if coords:
             self.dirty = True
         if self.bmo.is_mirror_mode:
             mirrors = {vert : self.bmo.find_mirror( vert ) for vert, coord in coords.items()}
 
-        if self.effective_boundary :
+        if self.effective_boundary:
             boundary = { c for c in coords.keys() if c.is_boundary }
 
             result = {}
-            for v in boundary :
+            for v in boundary:
                 if len(v.link_faces) == 1:
                     continue
                 le = [e.other_vert(v).co for e in v.link_edges if e.is_boundary]
@@ -178,7 +198,7 @@ class SubToolBrushRelax(SubToolEx) :
                 v.co = co
 
             targetVerts = list(coords.keys() - boundary)
-        else :
+        else:
             inside = [ c for c in coords.keys() if not c.is_boundary ]
             targetVerts = inside
 
