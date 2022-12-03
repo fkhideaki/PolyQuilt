@@ -183,51 +183,79 @@ class SubToolAutoQuad(SubToolEx):
         if is_x_zero and cls.is_x_zero(vert.co):
             return None
 
-        manifolds = [ e for e in vert.link_edges if not e.link_faces and e != edge ]
-        if len(manifolds) == 1 :
-            nrm0 = ( vert.co - edge.other_vert(vert).co ).normalized()
-            nrm1 = ( vert.co - manifolds[0].other_vert(vert).co ).normalized()
-            if nrm0.angle( nrm1 ) * 57.3 < 150 :
-                if cls.CalaTangent(edge,vert).dot(nrm1) < 0 :
-                    return manifolds[0]
+        manifold = cls.GetNextManifold(edge, vert)
+        if manifold:
+            if cls.IsEnableMakeQuad(edge, vert, manifold):
+                return manifold
 
-        boundary_edge = [ e for e in vert.link_edges if e.is_boundary and e != edge and edge.link_faces[0] not in e.link_faces ]
-        if len( boundary_edge ) == 1 :
-            nrm0 = ( vert.co - edge.other_vert(vert).co ).normalized()
-            nrm1 = ( vert.co - boundary_edge[0].other_vert(vert).co ).normalized()
-            if nrm0.angle( nrm1 ) * 57.3 < 150 :
-                if cls.CalaTangent(edge,vert).dot(nrm1) < 0 :
-                    return boundary_edge[0]
+        bound = cls.GetNextBound(edge, vert)
+        if bound:
+            if cls.IsEnableMakeQuad(edge, vert, bound):
+                return bound
+
         return None
 
     @classmethod
+    def GetNextManifold(cls, edge, vert):
+        manifold = None
+        for e in vert.link_edges:
+            if e is edge:
+                continue
+            if not e.link_faces:
+                if not manifold:
+                    manifold = e
+                else:
+                    return None
+        return manifold
+
+    @classmethod
+    def GetNextBound(cls, edge, vert):
+        bound = None
+        for e in vert.link_edges:
+            if e is edge:
+                continue
+            if e.is_boundary and edge.link_faces[0] not in e.link_faces:
+                if not bound:
+                    bound = e
+                else:
+                    return None
+        return bound
+
+    @classmethod
+    def IsEnableMakeQuad(cls, edge, vert, be):
+        nrm0 = (vert.co - edge.other_vert(vert).co).normalized()
+        nrm1 = (vert.co - be.other_vert(vert).co).normalized()
+        if nrm0.angle(nrm1) * 57.3 >= 150:
+            return False
+        if cls.CalaTangent(edge, vert).dot(nrm1) >= 0:
+            return False
+        return True
+
+    @classmethod
     def MakePolyByEdge(cls, edge, is_x_zero):
-        len = edge.calc_length()
         v0, v1 = cls.GetEdgeVerts(edge)
 
-        # 境界エッジを探す
         e0 = cls.FindBoundaryEdge(edge, v0, is_x_zero)
         e1 = cls.FindBoundaryEdge(edge, v1, is_x_zero)
 
-        if e0 == None and e1 != None :
+        if not e0 and e1:
             return cls.Make_Isosceles_Trapezoid(edge, e1, v1, is_x_zero)
-        if e0 != None and e1 == None :
+        elif e0 and not e1:
             return cls.Make_Isosceles_Trapezoid(edge, e0, v0, is_x_zero)
-
-        if e0 and e1:
+        elif e0 and e1:
             p0 = e0.other_vert(v0)
             p1 = e1.other_vert(v1)
             if p0 == p1:
                 return  [v1, v0, p0], None
-        elif not e0 and not e1:
+            else:
+                return [v1, v0, p0, p1], None
+        else:
+            len = edge.calc_length()
             tl0 = cls.CalaTangent(edge, v0) * len
             tl1 = cls.CalaTangent(edge, v1) * len
             p0 = cls.check_z_zero(v0.co, v0.co + tl0, is_x_zero)
             p1 = cls.check_z_zero(v1.co, v1.co + tl1, is_x_zero)
-
-        verts = [ v for v in [v1, v0, p0, p1] if v != None ]
-
-        return verts, None
+            return [v1, v0, p0, p1], None
 
     @classmethod
     def GetEdgeVerts(cls, edge):
@@ -258,7 +286,7 @@ class SubToolAutoQuad(SubToolEx):
         verts = [ v for v in [ edge_other_vert , p , boundary_other_vert , vert ] if v != None ]
 
         normal = None
-        if edge.link_faces :
+        if edge.link_faces:
             for loop in edge.link_faces[0].loops :
                 if edge == loop.edge :
                     if loop.vert == vert :
@@ -267,7 +295,7 @@ class SubToolAutoQuad(SubToolEx):
         else :
             normal = pqutil.getViewDir()
 
-        return verts , normal
+        return verts, normal
 
     @classmethod
     def MakePolyByVert( cls , vert , is_x_zero ) :
