@@ -106,7 +106,6 @@ class SubToolAutoQuad(SubToolEx):
         mat = gizmo.bmo.obj.matrix_world
 
         vs = []
-        rv = []
         for v in verts:
             if isinstance(v, mathutils.Vector):
                 vv = QSnap.adjust_point(mat @ v, is_x_zero)
@@ -115,18 +114,15 @@ class SubToolAutoQuad(SubToolEx):
             vs.append(vv)
 
         if gizmo.bmo.is_mirror_mode:
-            inv = mat.inverted()
-            for v in vs:
-                r = inv @ v
-                rr = mat @ mathutils.Vector((-r.x, r.y, r.z))
-                rv.append(rr)
+            rv = cls.GetMirrorShape(vs, mat)
+
+        draw_highlight = element.DrawFunc(
+            gizmo.bmo.obj,
+            gizmo.preferences.highlight_color,
+            gizmo.preferences)
 
         def Draw():
             if element.isVert or element.isEdge:
-                draw_highlight = element.DrawFunc(
-                    gizmo.bmo.obj,
-                    gizmo.preferences.highlight_color,
-                    gizmo.preferences)
                 draw_highlight()
 
             col = gizmo.preferences.makepoly_color
@@ -137,6 +133,16 @@ class SubToolAutoQuad(SubToolEx):
                 draw_util.draw_Poly3D(bpy.context, rv, (col[0], col[1], col[2], col[3] * 0.25), 0.5)
                 draw_util.draw_loop3D(bpy.context, rv, (col[0], col[1], col[2], 0.5), 2, 0.5)
         return Draw
+
+    @classmethod
+    def GetMirrorShape(cls, vs, mat):
+        inv = mat.inverted()
+        rv = []
+        for v in vs:
+            r = inv @ v
+            rr = mat @ mathutils.Vector((-r.x, r.y, r.z))
+            rv.append(rr)
+        return rv
 
     def OnUpdate( self , context , event ) :
         return 'FINISHED'
