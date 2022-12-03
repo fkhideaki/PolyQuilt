@@ -32,6 +32,7 @@ class SubToolAutoQuad(SubToolEx):
         super().__init__(root)
         is_x_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
 
+        verts = None
         if self.currentTarget.isVert:
             verts, normal = self.MakePolyByVert(self.currentTarget.element, is_x_zero)
         elif self.currentTarget.isEdge:
@@ -39,7 +40,7 @@ class SubToolAutoQuad(SubToolEx):
         #elif self.currentTarget.isEmpty:
         #    verts, normal = self.MakePolyByEmpty(self.bmo, self.startMousePos)
 
-        if verts == None:
+        if verts is None:
             return
 
         def makeVert(p):
@@ -91,6 +92,8 @@ class SubToolAutoQuad(SubToolEx):
     @classmethod
     def DrawHighlight(cls, gizmo, element):
         is_x_zero = gizmo.preferences.fix_to_x_zero or gizmo.bmo.is_mirror_mode
+
+        verts = None
         if element.isVert:
             verts, normal = cls.MakePolyByVert(element.element, is_x_zero)
         elif element.isEdge:
@@ -98,7 +101,7 @@ class SubToolAutoQuad(SubToolEx):
         #elif element.isEmpty:
         #    verts, normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
 
-        if verts == None:
+        if verts is None:
             def Dummy():
                 pass
             return Dummy
@@ -331,19 +334,19 @@ class SubToolAutoQuad(SubToolEx):
         return verts , normal
 
     @classmethod
-    def MakePolyByEmpty( cls , bmo , startPos ) :
+    def MakePolyByEmpty(cls, bmo, startPos):
         highlight = bmo.highlight
         boundary_edges = highlight.boundaryViewPosEdges
-        verts = [ [(startPos-p).length , v , p ] for v,p in highlight.boundaryViewPosVerts ]
+        verts = [[(startPos - p).length, v, p] for v, p in highlight.boundaryViewPosVerts]
         verts.sort(key=lambda x:x[0] , reverse=False)
         matrix = bmo.obj.matrix_world
-        context =  bpy.context
+        context = bpy.context
         intersect_point_quad_2d = mathutils.geometry.intersect_point_quad_2d
         intersect_line_line_2d = mathutils.geometry.intersect_line_line_2d
         convex_hull_2d = mathutils.geometry.convex_hull_2d
         atan2 =  math.atan2
 
-        def Chk( p1 , vt ) :
+        def Chk(p1, vt) :
             v = vt[1]
             p2 = vt[2]
             if not QSnap.is_target( matrix @ v.co ) :
@@ -359,9 +362,9 @@ class SubToolAutoQuad(SubToolEx):
                             return False
             return True
 
-        def convex_hull( points ) :
-            idxs = convex_hull_2d( points )
-            if len(idxs) != len(points) :
+        def convex_hull(points) :
+            idxs = convex_hull_2d(points)
+            if len(idxs) != len(points):
                 angles = [ [ atan2( point.y - startPos.y , point.x - startPos.x ) , index ] for index , point in enumerate(points) ]
                 angles.sort(key=lambda x:x[0] , reverse=False)
                 return [ i for r,i in angles ]
@@ -387,6 +390,4 @@ class SubToolAutoQuad(SubToolEx):
                 if mathutils.geometry.intersect_point_tri( startPos , quad[0][2] , quad[1][2] , quad[2][2] ) :
                     return [ q[1] for q in quad ] , None
 
-        return None , None
-
-
+        return None, None

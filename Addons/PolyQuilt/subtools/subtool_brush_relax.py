@@ -25,19 +25,25 @@ from ..QMesh import *
 from .subtool import SubToolEx
 from ..utils.dpi import *
 
-class SubToolBrushRelax(SubToolEx) :
+class SubToolBrushRelax(SubToolEx):
     name = "RelaxBrushTool"
 
-    def __init__(self, event ,  root) :
+    def __init__(self, event, root):
         super().__init__(root)
         self.radius = self.preferences.brush_size * dpm()
         self.occlusion_tbl = {}
         self.mirror_tbl = {}
         self.dirty = False
-        if self.currentTarget.isEmpty or ( self.currentTarget.isEdge and self.currentTarget.element.is_boundary ) :
-            self.effective_boundary = True
-        else :
-            self.effective_boundary = False
+        self.effective_boundary = self.GetEffectiveBoundary()
+
+    def GetEffectiveBoundary(self):
+        ct = self.currentTarget
+        if ct.isEmpty:
+            return True
+        if ct.isEdge:
+            if ct.element.is_boundary:
+                return True
+        return False
 
     @staticmethod
     def Check(root, target):
