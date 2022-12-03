@@ -32,12 +32,12 @@ class SubToolAutoQuad(SubToolEx):
         super().__init__(root)
         is_x_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
 
-        if self.currentTarget.isVert :
+        if self.currentTarget.isVert:
             verts, normal = self.MakePolyByVert(self.currentTarget.element, is_x_zero)
-        elif self.currentTarget.isEdge :
+        elif self.currentTarget.isEdge:
             verts, normal = self.MakePolyByEdge(self.currentTarget.element, is_x_zero)
-        elif self.currentTarget.isEmpty :
-            verts, normal = self.MakePolyByEmpty(self.bmo, self.startMousePos)
+        #elif self.currentTarget.isEmpty:
+        #    verts, normal = self.MakePolyByEmpty(self.bmo, self.startMousePos)
 
         if verts == None:
             return
@@ -89,14 +89,14 @@ class SubToolAutoQuad(SubToolEx):
             return False
 
     @classmethod
-    def DrawHighlight(cls, gizmo, element) :
+    def DrawHighlight(cls, gizmo, element):
         is_x_zero = gizmo.preferences.fix_to_x_zero or gizmo.bmo.is_mirror_mode
         if element.isVert:
             verts, normal = cls.MakePolyByVert(element.element, is_x_zero)
         elif element.isEdge:
             verts, normal = cls.MakePolyByEdge(element.element, is_x_zero)
-        elif element.isEmpty:
-            verts, normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
+        #elif element.isEmpty:
+        #    verts, normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
 
         if verts == None:
             def Dummy():
