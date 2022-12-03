@@ -120,6 +120,9 @@ def draw_poly2D( verts , color = (1,1,1,1) ):
 def begin2d() :
     bgl.glDisable(bgl.GL_DEPTH_TEST)
 
+def draw_loop3D(context, verts, color = (1,1,1,1), width : float = 1.0, hide_alpha : float = 1.0):
+    draw_lines3D(context, verts, color, width, hide_alpha, 'LINE_LOOP')
+
 def draw_lines3D(context, verts, color = (1,1,1,1), width : float = 1.0 , hide_alpha : float = 1.0 , primitiveType = 'LINE_STRIP' ):
     bgl.glEnable(bgl.GL_LINE_SMOOTH)
     bgl.glLineWidth(width )    

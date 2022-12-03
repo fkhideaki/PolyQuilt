@@ -106,6 +106,7 @@ class SubToolAutoQuad(SubToolEx):
         mat = gizmo.bmo.obj.matrix_world
 
         vs = []
+        rv = []
         for v in verts:
             if isinstance(v, mathutils.Vector):
                 vv = QSnap.adjust_point(mat @ v, is_x_zero)
@@ -115,7 +116,6 @@ class SubToolAutoQuad(SubToolEx):
 
         if gizmo.bmo.is_mirror_mode:
             inv = mat.inverted()
-            rv = []
             for v in vs:
                 r = inv @ v
                 rr = mat @ mathutils.Vector((-r.x, r.y, r.z))
@@ -132,10 +132,10 @@ class SubToolAutoQuad(SubToolEx):
             col = gizmo.preferences.makepoly_color
             col = (col[0], col[1], col[2], col[3] * 0.5)
             draw_util.draw_Poly3D(bpy.context, vs, col, 0.5)
-            draw_util.draw_lines3D(bpy.context, vs, col, 2, 0)
+            draw_util.draw_loop3D(bpy.context, vs, col, 2, 0)
             if gizmo.bmo.is_mirror_mode:
                 draw_util.draw_Poly3D(bpy.context, rv, (col[0], col[1], col[2], col[3] * 0.25), 0.5)
-                draw_util.draw_lines3D(bpy.context, rv, (col[0], col[1], col[2], 0.5), 2, 0.5)
+                draw_util.draw_loop3D(bpy.context, rv, (col[0], col[1], col[2], 0.5), 2, 0.5)
         return Draw
 
     def OnUpdate( self , context , event ) :
