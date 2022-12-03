@@ -252,7 +252,7 @@ class PolyQuiltPreferences(AddonPreferences):
 
     fix_bound_edge : bpy.props.BoolProperty(
               name = "fix_bound_edge" ,
-              default = True,
+              default = False,
               description="Fix Bound Edge",
             )
 

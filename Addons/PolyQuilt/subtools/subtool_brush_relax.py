@@ -93,7 +93,7 @@ class SubToolBrushRelax(SubToolEx) :
     def OnDraw3D(self, context):
         pass
 
-    def CollectVerts(self, context, coord, fix_sharp, fix_bound):
+    def CollectVerts(self, context, coord):
         rv3d = context.region_data
         region = context.region
         halfW = region.width / 2.0
@@ -118,75 +118,65 @@ class SubToolBrushRelax(SubToolEx) :
         occlusion_tbl_get = self.occlusion_tbl.get
         is_target = QSnap.is_target
         new_vec = mathutils.Vector
-        def ProjVert(vt):
+
+        coords = []
+        cm = {}
+        for vt in verts:
+            if not vt.select:
+                continue
             co = vt.co
             is_occlusion = occlusion_tbl_get(vt)
-            if is_occlusion == None:
+            if is_occlusion is None:
                 is_occlusion = is_target(matrix_world @ co)
                 self.occlusion_tbl[vt] = is_occlusion
+                if not is_occlusion:
+                    continue
 
-            if not is_occlusion:
-                return None
-
-            if fix_sharp or fix_bound:
-                for e in vt.link_edges:
-                    if fix_sharp:
-                        if not e.smooth:
-                            return None
-                    if fix_bound:
-                        if e.is_boundary:
-                            return None
+            if self.IsFixedVert(vt):
+                continue
 
             pv = matrix @ co.to_4d()
             w = pv.w
             if w < 0.0:
-                return None
+                continue
             px = pv.x * halfW / w + halfW
             py = pv.y * halfH / w + halfH
             p = new_vec((px, py))
             r = (coord - p).length
             if r > radius :
-                return None
+                continue
 
             x = (radius - r) / radius
-            return (vt, x ** 2, co.copy())
-
-        coords = [ProjVert(vert) for vert in verts if vert.select]
+            x2 = x ** 2
+            cm[vt] = [x2, co.copy()]
 
         select_stack.pop()
 
-        return { c[0]: [c[1],c[2]] for c in coords if c != None }
-
-    def MirrorVert( self , context , coords ) :
-        # ミラー頂点を検出
-        find_mirror = self.bmo.find_mirror
-        mirrors = { vert : find_mirror( vert ) for vert , coord in coords.items() }
-
-        # 重複する場合は
-        for (vert , coord) , mirror in zip( coords.items() , mirrors.values() ) :
-            if mirror != None :
-                cur = coord[0]
-                dst = coords[mirror][0]
-                coord[0] = cur if dst <= cur else dst
-
-        # 重複しないものを列挙
-        mirrors = { vert : [coords[vert][0] , mirror.co.copy() ] for vert , mirror in mirrors.items() if mirror != None and mirror not in coords }
-
-        coords.update(mirrors)
-        return coords
+        return cm
+    
+    def IsFixedVert(self, vt):
+        fix_sharp = self.preferences.fix_sharp_edge
+        fix_bound = self.preferences.fix_bound_edge
+        if fix_sharp or fix_bound:
+            for e in vt.link_edges:
+                if fix_sharp:
+                    if not e.smooth:
+                        return True
+                if fix_bound:
+                    if e.is_boundary:
+                        return True
+        return False
 
     def DoRelax(self, context, coord) :
         is_fix_zero = self.preferences.fix_to_x_zero or self.bmo.is_mirror_mode
-        fix_sharp = self.preferences.fix_sharp_edge
-        fix_bound = self.preferences.fix_bound_edge
-        coords = self.CollectVerts(context, coord, fix_sharp, fix_bound)
+        coords = self.CollectVerts(context, coord)
         if coords:
             self.dirty = True
         if self.bmo.is_mirror_mode:
-            mirrors = {vert : self.bmo.find_mirror( vert ) for vert, coord in coords.items()}
+            mirrors = {vert : self.bmo.find_mirror(vert) for vert, coord in coords.items()}
 
         if self.effective_boundary:
-            boundary = { c for c in coords.keys() if c.is_boundary }
+            boundary = {c for c in coords.keys() if c.is_boundary}
 
             result = {}
             for v in boundary:
@@ -199,7 +189,7 @@ class SubToolBrushRelax(SubToolEx) :
 
             targetVerts = list(coords.keys() - boundary)
         else:
-            inside = [ c for c in coords.keys() if not c.is_boundary ]
+            inside = [c for c in coords.keys() if not c.is_boundary]
             targetVerts = inside
 
         bmesh.ops.smooth_vert(
@@ -218,32 +208,28 @@ class SubToolBrushRelax(SubToolEx) :
         is_x_zero_pos = self.bmo.is_x_zero_pos
         zero_pos = self.bmo.zero_pos
         mirror_pos = self.bmo.mirror_pos
-        for v , (f,orig) in coords.items() :
-            p = QSnap.adjust_local( matrix_world , v.co , is_fix_zero )
-            s = orig.lerp( p , f )
-            if is_fix_zero and is_x_zero_pos(s) :
+        for v , (f,orig) in coords.items():
+            p = QSnap.adjust_local(matrix_world, v.co, is_fix_zero)
+            s = orig.lerp(p, f)
+            if is_fix_zero and is_x_zero_pos(s):
                 s = zero_pos(s)
             v.co = s
 
-        if self.bmo.is_mirror_mode :
-            for vert , mirror in mirrors.items() :
-                if mirror != None :
-                    if mirror in coords :
-                        ms = coords[mirror][0]
-                        vs = coords[vert][0]
-                        if vs >= ms :
-                            mirror.co = mirror_pos(vert.co)
-                        else :
-                            vert.co = mirror_pos(mirror.co)
-                    else :
+        if self.bmo.is_mirror_mode:
+            for vert , mirror in mirrors.items():
+                if mirror == None:
+                    continue
+                if mirror in coords:
+                    ms = coords[mirror][0]
+                    vs = coords[vert][0]
+                    if vs >= ms:
                         mirror.co = mirror_pos(vert.co)
+                    else:
+                        vert.co = mirror_pos(mirror.co)
+                else:
+                    mirror.co = mirror_pos(vert.co)
 
-#        self.bmo.bm.normal_update()
-#        self.bmo.obj.data.update_gpu_tag()
-#        self.bmo.obj.data.update_tag()
-#        self.bmo.obj.update_from_editmode()
-#        self.bmo.obj.update_tag()
-        bmesh.update_edit_mesh(self.bmo.obj.data , loop_triangles = False,destructive = False )
+        bmesh.update_edit_mesh(self.bmo.obj.data, loop_triangles = False, destructive = False)
 
     def getAvgPos(self, le):
         tv = mathutils.Vector((0, 0, 0))
