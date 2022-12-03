@@ -91,51 +91,51 @@ class SubToolAutoQuad(SubToolEx):
     @classmethod
     def DrawHighlight(cls, gizmo, element) :
         is_x_zero = gizmo.preferences.fix_to_x_zero or gizmo.bmo.is_mirror_mode
-        if element.isVert :
-            verts , normal = cls.MakePolyByVert(element.element, is_x_zero)
-        elif element.isEdge :
-            verts , normal = cls.MakePolyByEdge(element.element, is_x_zero)
-        elif element.isEmpty :
-            verts , normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
+        if element.isVert:
+            verts, normal = cls.MakePolyByVert(element.element, is_x_zero)
+        elif element.isEdge:
+            verts, normal = cls.MakePolyByEdge(element.element, is_x_zero)
+        elif element.isEmpty:
+            verts, normal = cls.MakePolyByEmpty(gizmo.bmo, gizmo.mouse_pos)
 
         if verts == None:
             def Dummy():
                 pass
             return Dummy
 
-        col = gizmo.preferences.makepoly_color        
-        col = (col[0], col[1], col[2], col[3] * 0.5)            
         mat = gizmo.bmo.obj.matrix_world
 
-        def calcVert(v):
+        vs = []
+        for v in verts:
             if isinstance(v, mathutils.Vector):
-                return  QSnap.adjust_point( mat @ v , is_x_zero )
-            else :
-                return mat @ v.co
+                vv = QSnap.adjust_point(mat @ v, is_x_zero)
+            else:
+                vv = mat @ v.co
+            vs.append(vv)
 
-        vs = [calcVert(v) for v in verts]
-        vs.append(vs[0])
-        if gizmo.bmo.is_mirror_mode :
+        if gizmo.bmo.is_mirror_mode:
             inv = mat.inverted()
-            rv = [ inv @ v for v in vs ]
-            rv = [ mat @ mathutils.Vector( ( -v.x,v.y,v.z )) for v in rv ]
-            rv.append( rv[0] )
-
-        draw_highlight = element.DrawFunc(
-            gizmo.bmo.obj,
-            gizmo.preferences.highlight_color,
-            gizmo.preferences)
+            rv = []
+            for v in vs:
+                r = inv @ v
+                rr = mat @ mathutils.Vector((-r.x, r.y, r.z))
+                rv.append(rr)
 
         def Draw():
-            if element.isVert :
+            if element.isVert or element.isEdge:
+                draw_highlight = element.DrawFunc(
+                    gizmo.bmo.obj,
+                    gizmo.preferences.highlight_color,
+                    gizmo.preferences)
                 draw_highlight()
-            elif element.isEdge :
-                draw_highlight()
-            draw_util.draw_Poly3D( bpy.context , vs , col , 0.5 )
-            draw_util.draw_lines3D( bpy.context , vs , (col[0],col[1],col[2],col[3] * 1)  , 2 , 0 )
-            if gizmo.bmo.is_mirror_mode :
-                draw_util.draw_Poly3D( bpy.context , rv , (col[0],col[1],col[2],col[3] * 0.25) , 0.5 )
-                draw_util.draw_lines3D( bpy.context , rv , (col[0],col[1],col[2],0.5) , 2 , 0.5 )
+
+            col = gizmo.preferences.makepoly_color
+            col = (col[0], col[1], col[2], col[3] * 0.5)
+            draw_util.draw_Poly3D(bpy.context, vs, col, 0.5)
+            draw_util.draw_lines3D(bpy.context, vs, col, 2, 0)
+            if gizmo.bmo.is_mirror_mode:
+                draw_util.draw_Poly3D(bpy.context, rv, (col[0], col[1], col[2], col[3] * 0.25), 0.5)
+                draw_util.draw_lines3D(bpy.context, rv, (col[0], col[1], col[2], 0.5), 2, 0.5)
         return Draw
 
     def OnUpdate( self , context , event ) :
