@@ -128,22 +128,37 @@ class QMeshHighlight :
 
     def CollectVerts(self, coord, radius : float, ignore = [], edgering = False, backface_culling = True) -> ElementItem :
         p = Vector(coord)
-        viewPos = self.viewPosVerts
         rr = Vector((radius, 0))
         verts = self.pqo.bm.verts
-        s = [ [v,s] for v,s in viewPos.items() if s - p <= rr and v in verts ]
-        if edgering :
-            s = [ i for i in s if i[0].is_boundary or i[0].is_manifold == False ]
+        viewPos = self.viewPosVerts
 
+        ray = None
         if backface_culling:
             ray = pqutil.Ray.from_screen(bpy.context, coord).world_to_object(self.pqo.obj)
-            s = [ i for i in s if i[0].is_manifold == False or i[0].is_boundary or i[0].normal.dot( ray.vector ) < 0 ]
 
-        s = [ i for i in s if i[0] not in ignore ]
+        s = []
+        for v, vs in viewPos.items():
+            if v in ignore:
+                continue
+            if not (vs - p <= rr and v in verts):
+                continue
+            if edgering:
+                if not (v.is_boundary or not v.is_manifold):
+                    continue
+            if backface_culling:
+                if v.is_manifold:
+                    if not v.is_boundary and v.normal.dot(ray.vector) >= 0:
+                        continue
+            s.append([v, vs])
 
         r = sorted(s, key=lambda i:(i[1] - p).length_squared)
         matrix_world = self.pqo.obj.matrix_world
-        return [ ElementItem(self.pqo, i[0], i[1], matrix_world @ i[0].co) for i in r ] 
+
+        tr = []
+        for i in r:
+            trv = ElementItem(self.pqo, i[0], i[1], matrix_world @ i[0].co)
+            tr.append(trv)
+        return tr
 
 
     def CollectEdge( self ,coord , radius : float , ignore = [] , backface_culling = True , edgering = False ) -> ElementItem :
