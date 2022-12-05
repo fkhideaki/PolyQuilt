@@ -37,7 +37,7 @@ class MainToolDefault(MainTool) :
     name = "Master Tool"
 
     def __init__(self,op,currentTarget, button) :
-        super().__init__(op,currentTarget, button)        
+        super().__init__(op,currentTarget, button)
 
     @staticmethod
     def LMBEventCallback(self , event ):
@@ -95,10 +95,14 @@ class MainToolDefault(MainTool) :
 
 
     @classmethod
-    def DrawHighlight( cls , gizmo , element ) :
-        if element != None and gizmo.bmo != None :
-            return element.DrawFunc( gizmo.bmo.obj , gizmo.preferences.highlight_color , gizmo.preferences , True )
-        return None
+    def DrawHighlight(cls, gizmo, element):
+        if element == None or gizmo.bmo == None:
+            return None
+        return element.DrawFunc(
+            gizmo.bmo.obj,
+            gizmo.preferences.highlight_color,
+            gizmo.preferences,
+            True)
 
     def OnDraw( self , context  ) :
         if self.LMBEvent.isPresure :

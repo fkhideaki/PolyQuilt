@@ -82,8 +82,8 @@ class SubToolDelete(SubToolEx) :
     def OnDraw3D( self , context  ) :
         if self.removes[0] :
             alpha = self.preferences.highlight_face_alpha
-            vertex_size = self.preferences.highlight_vertex_size        
-            width = self.preferences.highlight_line_width        
+            vertex_size = self.preferences.highlight_vertex_size
+            width = self.preferences.highlight_line_width
             color = self.preferences.delete_color 
             draw_util.drawElementsHilight3D( self.bmo.obj , self.removes[0] , vertex_size , width , alpha , color )
             if self.bmo.is_mirror_mode :
@@ -92,13 +92,22 @@ class SubToolDelete(SubToolEx) :
                 if mirrors :
                     draw_util.drawElementsHilight3D( self.bmo.obj , mirrors , vertex_size , width , alpha * 0.5 , color )
 
-        if self.startTarget.element == self.currentTarget.element :
-            self.startTarget.Draw( self.bmo.obj , self.preferences.delete_color  , self.preferences , marker = False , edge_pivot = True )
-        else :
-            self.startTarget.Draw( self.bmo.obj , self.preferences.delete_color  , self.preferences , marker = False , edge_pivot = False )
-        if self.currentTarget.isNotEmpty :
+        e_pivot = (self.startTarget.element == self.currentTarget.element)
+        self.startTarget.Draw(
+            self.bmo.obj,
+            self.preferences.delete_color,
+            self.preferences,
+            marker = False,
+            edge_pivot = e_pivot)
+
+        if self.currentTarget.isNotEmpty:
             if self.startTarget.element != self.currentTarget.element :
-                self.currentTarget.Draw( self.bmo.obj , self.preferences.delete_color  , self.preferences , marker = False , edge_pivot = False )
+                self.currentTarget.Draw(
+                    self.bmo.obj,
+                    self.preferences.delete_color,
+                    self.preferences,
+                    marker = False,
+                    edge_pivot = False)
 
     @classmethod
     def GetCursor(cls) :

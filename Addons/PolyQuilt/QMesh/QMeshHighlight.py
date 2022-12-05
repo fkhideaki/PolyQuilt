@@ -126,24 +126,24 @@ class QMeshHighlight :
             self.current_matrix = pj_matrix
 
 
-    def CollectVerts( self , coord , radius : float , ignore = [] , edgering = False , backface_culling = True ) -> ElementItem :
-        p = Vector( coord )
+    def CollectVerts(self, coord, radius : float, ignore = [], edgering = False, backface_culling = True) -> ElementItem :
+        p = Vector(coord)
         viewPos = self.viewPosVerts
-        rr = Vector( (radius,0) )
+        rr = Vector((radius, 0))
         verts = self.pqo.bm.verts
         s = [ [v,s] for v,s in viewPos.items() if s - p <= rr and v in verts ]
         if edgering :
             s = [ i for i in s if i[0].is_boundary or i[0].is_manifold == False ]
 
-        if backface_culling :
-            ray = pqutil.Ray.from_screen( bpy.context , coord ).world_to_object( self.pqo.obj )
+        if backface_culling:
+            ray = pqutil.Ray.from_screen(bpy.context, coord).world_to_object(self.pqo.obj)
             s = [ i for i in s if i[0].is_manifold == False or i[0].is_boundary or i[0].normal.dot( ray.vector ) < 0 ]
 
         s = [ i for i in s if i[0] not in ignore ]
 
-        r = sorted( s , key=lambda i:(i[1] - p).length_squared )
+        r = sorted(s, key=lambda i:(i[1] - p).length_squared)
         matrix_world = self.pqo.obj.matrix_world
-        return [ ElementItem( self.pqo ,i[0] , i[1] , matrix_world @ i[0].co ) for i in r ] 
+        return [ ElementItem(self.pqo, i[0], i[1], matrix_world @ i[0].co) for i in r ] 
 
 
     def CollectEdge( self ,coord , radius : float , ignore = [] , backface_culling = True , edgering = False ) -> ElementItem :
@@ -188,22 +188,22 @@ class QMeshHighlight :
         return s
 
 
-    def PickFace( self ,coord , ignore = []  , backface_culling = True ) -> ElementItem :
-        ray = pqutil.Ray.from_screen( bpy.context , coord ).world_to_object( self.pqo.obj )
-        pos,nrm,index,dist = self.pqo.btree.ray_cast( ray.origin , ray.vector )
+    def PickFace(self, coord, ignore = [], backface_culling = True) -> ElementItem:
+        ray = pqutil.Ray.from_screen(bpy.context, coord).world_to_object(self.pqo.obj)
+        pos, nrm, index, dist = self.pqo.btree.ray_cast(ray.origin, ray.vector)
         prePos = ray.origin
-        while( index is not None ) :
-            face =  self.pqo.bm.faces[index]
-            if (prePos -pos).length < 0.00001 :
+        while (index is not None):
+            face = self.pqo.bm.faces[index]
+            if (prePos - pos).length < 0.00001:
                 break
             prePos = pos
-            if face.hide is False and face not in ignore :
-                if backface_culling == False or face.normal.dot( ray.vector ) < 0 :
-                    return ElementItem( self.pqo , face , coord , self.pqo.obj.matrix_world @ pos , dist )
-                else :
+            if face.hide is False and face not in ignore:
+                if backface_culling == False or face.normal.dot(ray.vector) < 0:
+                    return ElementItem(self.pqo, face, coord, self.pqo.obj.matrix_world @ pos, dist)
+                else:
                     return ElementItem.Empty()
             ray.origin = ray.origin + ray.vector * 0.00001
-            pos,nrm,index,dist = self.pqo.btree.ray_cast( ray.origin , ray.vector )
+            pos, nrm, index, dist = self.pqo.btree.ray_cast(ray.origin, ray.vector)
 
         return ElementItem.Empty()
 

@@ -112,18 +112,18 @@ class Ray :
 
     @staticmethod
     def from_screen( context , coord : mathutils.Vector) :
-        rv3d = context.region_data   
+        rv3d = context.region_data
         region = context.region
         origin = region_2d_to_origin_3d(region, rv3d, coord)
         vector = region_2d_to_vector_3d(region, rv3d, coord)
         return Ray(origin,vector)
 
     @staticmethod
-    def from_world_to_screen( context , world_pos : mathutils.Vector ) :
+    def from_world_to_screen(context, world_pos : mathutils.Vector):
         coord = location_3d_to_region_2d(world_pos)
-        if coord == None :
+        if coord == None:
             return None
-        return Ray.from_screen( context , coord)
+        return Ray.from_screen(context, coord)
 
     def world_to_object( self , obj ) :
         matrix_inv = obj.matrix_world.inverted()

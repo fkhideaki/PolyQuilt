@@ -97,13 +97,12 @@ class SubToolBrushMove(SubToolEx) :
         bpy.ops.view3d.select_circle( x = int(coord.x) , y = int(coord.y) , radius = int(radius) , wait_for_input=False, mode='SET' )
 #        bm.select_flush(False)
 
-        is_target = QSnap.is_target
         new_vec = mathutils.Vector
         pw = (self.strength * self.strength ) * 8
 
         def ProjVert( vt ) :
             co = vt.co
-            if not is_target(matrix_world @ co) :
+            if not QSnap.is_target(matrix_world @ co):
                 return None
 
             pv = matrix @ co.to_4d()

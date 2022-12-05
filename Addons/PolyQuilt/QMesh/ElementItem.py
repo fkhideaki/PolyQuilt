@@ -240,48 +240,57 @@ class ElementItem :
         p = pqutil.location_3d_to_region_2d( co )
         return ElementItem( qmesh ,e , p , co , 0.0 )
 
-    def Draw( self , obj , color , preferences , marker = False , edge_pivot = True ) :
-        func = self.DrawFunc( obj , color , preferences , marker , edge_pivot )
+    def Draw(self, obj, color, preferences, marker = False, edge_pivot = True):
+        func = self.DrawFunc(obj, color, preferences, marker, edge_pivot)
         func()
 
-    def DrawFunc( self , obj , color , preferences , marker = False , edge_pivot = True , width = None ) :
+    def DrawFunc(self, obj, color, preferences, marker = False, edge_pivot = True, width = None):
+        if not self.is_valid:
+            def draw_all():
+                pass
+            return draw_all
+
+        size = preferences.highlight_vertex_size
+        width = preferences.highlight_line_width if width == None else width
+        alpha = preferences.highlight_face_alpha
+        element = self.element
+
         funcs = []
-
-        if self.is_valid :
-            size = preferences.highlight_vertex_size
-            width = preferences.highlight_line_width if width == None else width
-            alpha = preferences.highlight_face_alpha
-            element = self.element
-
-            funcs.append( draw_util.drawElementHilight3DFunc( obj , element , size , width ,alpha, color ) )
-            if self.isEdge :
-                if self.__div > 0 :
-                    div_col = ( color[0] , color[1] , color[2] , color[3] * 0.5 )
-                    l2w = self.__qmesh.local_to_world_pos
-                    rs = [ (i+1.0) / (self.__div + 1.0) for i in range(self.__div) ]
-                    div_points = [ l2w( element.verts[0].co.lerp( element.verts[1].co , r) ) for r in rs ]
-                    def draw_div() :
-                        draw_util.draw_pivots3D( div_points , 0.75 , div_col )                
-                    funcs.append( draw_div )
-                if edge_pivot :
-                    def draw_pivot() :
-                        draw_util.draw_pivots3D( (self.hitPosition,) , 1.0 , color )
-                    funcs.append( draw_pivot )
-                if marker and len(element.link_faces) <= 1 :
-                    v0 = pqutil.location_3d_to_region_2d(  self.__qmesh.local_to_world_pos(element.verts[0].co) )
-                    v1 = pqutil.location_3d_to_region_2d(  self.__qmesh.local_to_world_pos(element.verts[1].co) )                        
-                    def draw_marker() :
-                        self.draw_extrude_marker( preferences.marker_size , v0 , v1 )
-                    funcs.append( draw_marker )
-            if self.mirror is not None and self.mirror.is_valid :
-                color = ( color[0] , color[1] ,color[2] ,color[3] * 0.5 )
-                funcs.append( draw_util.drawElementHilight3DFunc( obj , self.mirror , size , width ,alpha , color ) )
+        funcs.append(
+            draw_util.drawElementHilight3DFunc(
+                obj,
+                element,
+                size,
+                width,
+                alpha,
+                color))
+        if self.isEdge:
+            if self.__div > 0:
+                div_col = ( color[0] , color[1] , color[2] , color[3] * 0.5 )
+                l2w = self.__qmesh.local_to_world_pos
+                rs = [ (i+1.0) / (self.__div + 1.0) for i in range(self.__div) ]
+                div_points = [ l2w( element.verts[0].co.lerp( element.verts[1].co , r) ) for r in rs ]
+                def draw_div() :
+                    draw_util.draw_pivots3D( div_points , 0.75 , div_col )                
+                funcs.append( draw_div )
+            if edge_pivot :
+                def draw_pivot() :
+                    draw_util.draw_pivots3D( (self.hitPosition,) , 1.0 , color )
+                funcs.append( draw_pivot )
+            if marker and len(element.link_faces) <= 1 :
+                v0 = pqutil.location_3d_to_region_2d(  self.__qmesh.local_to_world_pos(element.verts[0].co) )
+                v1 = pqutil.location_3d_to_region_2d(  self.__qmesh.local_to_world_pos(element.verts[1].co) )                        
+                def draw_marker() :
+                    self.draw_extrude_marker( preferences.marker_size , v0 , v1 )
+                funcs.append( draw_marker )
+        if self.mirror is not None and self.mirror.is_valid :
+            color = ( color[0] , color[1] ,color[2] ,color[3] * 0.5 )
+            funcs.append( draw_util.drawElementHilight3DFunc( obj , self.mirror , size , width ,alpha , color ) )
 
         def draw_all() :
-            for func in funcs :
+            for func in funcs:
                 if func :
                     func()
-
         return draw_all
 
 

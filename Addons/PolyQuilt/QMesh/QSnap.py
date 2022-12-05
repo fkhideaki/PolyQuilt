@@ -100,7 +100,7 @@ class QSnap:
             ray = pqutil.Ray.from_world_to_screen( bpy.context , world_pos )
             if ray == None :
                 return world_pos
-            location , norm , obj = cls.instance.__raycast( ray )
+            location , norm , obj = cls.instance.__raycast(ray)
             if location != None :
                 return location
         return world_pos
@@ -153,35 +153,36 @@ class QSnap:
                 vert.co = lp
 
     @classmethod
-    def is_target( cls , world_pos : mathutils.Vector) -> bool :
+    def is_target(cls, world_pos : mathutils.Vector) -> bool:
         dist = bpy.context.scene.tool_settings.double_threshold
         if cls.instance == None:
             return True
 
-        ray = pqutil.Ray.from_world_to_screen( bpy.context , world_pos )
+        ray = pqutil.Ray.from_world_to_screen(bpy.context, world_pos)
         if ray == None:
             return False
 
-        hit , normal , face = cls.instance.__raycast( ray )
+        hit, normal, face = cls.instance.__raycast(ray)
         if hit == None:
             return True
+
         v2h = (ray.origin - hit).length
         v2w = (ray.origin - world_pos).length
-
-        if abs(v2h - v2w) <= dist :
+        if abs(v2h - v2w) <= dist:
             return True
-        else :
-            ray2 = pqutil.Ray( hit + ray.vector * dist , ray.vector )
-            hit2 , normal2 , face2 = cls.instance.__raycast( ray2 )
-            if not hit2 :
-                return False
-            h2h = ( ray2.origin - hit2 ).length
-            w2h0 = ( ray2.origin - world_pos ).length
-            w2h1 = ( world_pos - hit2 ).length
-            if w2h0 < h2h :
-                if w2h0 < w2h1:
-                    return True
-        return False
+
+        ray2 = pqutil.Ray(hit + ray.vector * dist, ray.vector)
+        hit2, normal2, face2 = cls.instance.__raycast(ray2)
+        if not hit2:
+            return False
+        h2h = (ray2.origin - hit2).length
+        w2h0 = (ray2.origin - world_pos).length
+        w2h1 = (world_pos - hit2).length
+        if w2h0 >= h2h:
+            return False
+        if w2h0 >= w2h1:
+            return False
+        return True
 
     def __raycast(self, ray : pqutil.Ray):
         if not self.bvh_list:
@@ -192,15 +193,16 @@ class QSnap:
         normal = None
         index = None
         for obj, bvh in self.bvh_list.items():
-            local_ray = ray.world_to_object( obj )
-            hit = bvh.ray_cast( local_ray.origin , local_ray.vector )
-            if None not in hit :
-                if hit[3] < min_dist :
-                    matrix = obj.matrix_world
-                    location = pqutil.transform_position( hit[0] , matrix )
-                    normal = pqutil.transform_normal( hit[1] , matrix )
-                    index =  hit[2] + obj.pass_index * 10000000
-                    min_dist = hit[3]
+            local_ray = ray.world_to_object(obj)
+            hit = bvh.ray_cast(local_ray.origin, local_ray.vector)
+            if None in hit:
+                continue
+            if hit[3] < min_dist:
+                matrix = obj.matrix_world
+                location = pqutil.transform_position( hit[0] , matrix )
+                normal = pqutil.transform_normal( hit[1] , matrix )
+                index =  hit[2] + obj.pass_index * 10000000
+                min_dist = hit[3]
 
         return location, normal, index
 

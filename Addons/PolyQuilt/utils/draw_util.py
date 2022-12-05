@@ -266,17 +266,17 @@ def drawElementHilight3D( obj , element, radius ,width , alpha, color = (1,1,1,1
     bgl.glDisable(bgl.GL_BLEND)  
     bgl.glDepthMask(bgl.GL_FALSE)
 
-def drawElementHilight3DFunc( obj , element, radius ,width , alpha, color = (1,1,1,1) ) :
-    matrix_world = copy.copy( obj.matrix_world )
+def drawElementHilight3DFunc(obj, element, radius, width, alpha, color = (1,1,1,1)):
+    matrix_world = copy.copy(obj.matrix_world)
 
-    if isinstance( element , bmesh.types.BMVert ) :
+    if isinstance(element, bmesh.types.BMVert):
         co = copy.copy(element.co)
         v = matrix_world @ co
-        def draw() :
-            draw_pivots3D( (v,) , radius , color )
+        def draw():
+            draw_pivots3D((v,), radius, color)
         return draw
 
-    elif isinstance( element , bmesh.types.BMFace  ) :
+    elif isinstance(element, bmesh.types.BMFace):
         vs = [ matrix_world @ v.vert.co for v in element.loops ]
         polys = mathutils.geometry.tessellate_polygon( (vs,) )
         def draw() :
