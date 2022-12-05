@@ -71,7 +71,7 @@ class QMesh(QMeshOperators) :
             candidateVerts = self.highlight.CollectVerts(coord, radius, ignoreVerts, edgering, backface_culling = backface_culling)
             for vert in candidateVerts:
                 # 各点からRayを飛ばす
-                if not QSnap.is_target(vert.hitPosition):
+                if not QSnap.is_target(vert.hitPosition, bpy.context.active_object):
                     continue
                 hitTemp = self.highlight.PickFace(vert.coord, ignoreFaces, backface_culling = False)
 
@@ -99,7 +99,7 @@ class QMesh(QMeshOperators) :
             candidateEdges = self.highlight.CollectEdge( coord , radius , ignoreEdges , backface_culling = backface_culling , edgering= edgering )
 
             for edge in candidateEdges :
-                if not QSnap.is_target(edge.hitPosition):
+                if not QSnap.is_target(edge.hitPosition, bpy.context.active_object):
                     continue
                 hitTemp = self.highlight.PickFace( edge.coord , ignoreFaces , backface_culling = False )
                 if hitTemp.isEmpty :
@@ -124,7 +124,7 @@ class QMesh(QMeshOperators) :
                 hitFace = self.highlight.PickFace( coord , ignoreFaces , backface_culling = backface_culling  )
                 # 候補頂点/エッジがないなら面を返す
                 if hitFace.isNotEmpty :
-                    if QSnap.is_target(hitFace.hitPosition):
+                    if QSnap.is_target(hitFace.hitPosition, bpy.context.active_object):
                         hitElement = hitFace
         elif hitVert.isNotEmpty and hitEdge.isNotEmpty :
             if hitVert.element in hitEdge.element.verts :

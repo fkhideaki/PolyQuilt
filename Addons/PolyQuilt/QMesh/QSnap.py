@@ -100,7 +100,7 @@ class QSnap:
             ray = pqutil.Ray.from_world_to_screen( bpy.context , world_pos )
             if ray == None :
                 return world_pos
-            location , norm , obj = cls.instance.__raycast(ray)
+            location , norm , obj = cls.instance.__raycast(ray, None)
             if location != None :
                 return location
         return world_pos
@@ -153,7 +153,7 @@ class QSnap:
                 vert.co = lp
 
     @classmethod
-    def is_target(cls, world_pos : mathutils.Vector) -> bool:
+    def is_target(cls, world_pos : mathutils.Vector, pickTarget) -> bool:
         dist = bpy.context.scene.tool_settings.double_threshold
         if cls.instance == None:
             return True
@@ -162,7 +162,7 @@ class QSnap:
         if ray == None:
             return False
 
-        hit, normal, face = cls.instance.__raycast(ray)
+        hit, normal, face = cls.instance.__raycast(ray, pickTarget)
         if hit == None:
             return True
 
@@ -172,7 +172,7 @@ class QSnap:
             return True
 
         ray2 = pqutil.Ray(hit + ray.vector * dist, ray.vector)
-        hit2, normal2, face2 = cls.instance.__raycast(ray2)
+        hit2, normal2, face2 = cls.instance.__raycast(ray2, pickTarget)
         if not hit2:
             return False
         h2h = (ray2.origin - hit2).length
@@ -184,7 +184,7 @@ class QSnap:
             return False
         return True
 
-    def __raycast(self, ray : pqutil.Ray):
+    def __raycast(self, ray : pqutil.Ray, pickTarget):
         if not self.bvh_list:
             return None, None, None
 
@@ -193,6 +193,9 @@ class QSnap:
         normal = None
         index = None
         for obj, bvh in self.bvh_list.items():
+            if pickTarget:
+                if not obj is pickTarget:
+                    continue
             local_ray = ray.world_to_object(obj)
             hit = bvh.ray_cast(local_ray.origin, local_ray.vector)
             if None in hit:

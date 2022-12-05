@@ -102,7 +102,7 @@ class SubToolBrushMove(SubToolEx) :
 
         def ProjVert( vt ) :
             co = vt.co
-            if not QSnap.is_target(matrix_world @ co):
+            if not QSnap.is_target(matrix_world @ co, None):
                 return None
 
             pv = matrix @ co.to_4d()

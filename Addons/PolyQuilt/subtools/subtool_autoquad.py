@@ -349,7 +349,7 @@ class SubToolAutoQuad(SubToolEx):
         def Chk(p1, vt) :
             v = vt[1]
             p2 = vt[2]
-            if not QSnap.is_target(matrix @ v.co):
+            if not QSnap.is_target(matrix @ v.co, None):
                 return False
             for edge , (e1,e2) in boundary_edges.items():
                 if v not in edge.verts :
@@ -358,7 +358,7 @@ class SubToolAutoQuad(SubToolEx):
                         v1 = matrix @ edge.verts[0].co
                         v2 = matrix @ edge.verts[1].co
                         wp = pqutil.Ray.from_screen( context , hit ).hit_to_line_pos( v1 , v2 )
-                        if wp != None and QSnap.is_target(wp):
+                        if wp != None and QSnap.is_target(wp, None):
                             return False
             return True
 

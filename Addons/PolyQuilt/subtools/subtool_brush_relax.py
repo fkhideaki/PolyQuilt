@@ -132,7 +132,7 @@ class SubToolBrushRelax(SubToolEx):
             co = vt.co
             is_occlusion = occlusion_tbl_get(vt)
             if is_occlusion is None:
-                is_occlusion = QSnap.is_target(matrix_world @ co)
+                is_occlusion = QSnap.is_target(matrix_world @ co, None)
                 self.occlusion_tbl[vt] = is_occlusion
                 if not is_occlusion:
                     continue
