@@ -241,10 +241,9 @@ class SubToolMakePoly(SubTool):
                 self.bmo.UpdateMesh()
                 self.currentTarget = ElementItem(self.bmo, vert, self.mouse_pos, wp, 0.0)
 
-        if self.currentTarget.isEdge :
+        if self.currentTarget.isEdge:
             self.currentTarget = self.edge_split(self.currentTarget)
-                
-        elif self.currentTarget.isEmpty :
+        elif self.currentTarget.isEmpty:
             self.pivot = self.calc_planned_construction_position()
             vert = self.bmo.AddVertexWorld( self.pivot )
             self.bmo.UpdateMesh()                            
@@ -458,19 +457,21 @@ class SubToolMakePoly(SubTool):
     def edge_split(self, edgeItem):
         pos = self.bmo.world_to_local_pos(edgeItem.hitPosition)
 
-        if self.bmo.check_near(pos, self.bmo.mirror_pos(pos) ) :
+        if self.bmo.check_near(pos, self.bmo.mirror_pos(pos)):
             pos = self.bmo.zero_pos(pos)
 
-        new_edge , new_vert = self.bmo.edge_split_from_position( edgeItem.element , pos )
+        new_edge, new_vert = self.bmo.edge_split_from_position(edgeItem.element, pos)
+
         self.bmo.UpdateMesh()
-        QSnap.adjust_verts( self.bmo.obj , [new_vert] , self.preferences.fix_to_x_zero )
+        QSnap.adjust_verts(self.bmo.obj, [new_vert], self.preferences.fix_to_x_zero)
         self.bmo.UpdateMesh()
 
-        newItem = ElementItem.FormVert( self.bmo , new_vert )
+        newItem = ElementItem.FormVert(self.bmo, new_vert)
         if self.bmo.is_mirror_mode and newItem.mirror == None and newItem.is_x_zero is False :
-            self.bmo.AddVertex( self.bmo.mirror_pos( new_vert.co ) , False )
+            self.bmo.AddVertex(self.bmo.mirror_pos(new_vert.co), False)
             self.bmo.UpdateMesh()
             newItem.setup_mirror()
+        
         return newItem
 
     def check_splite( self ) :
@@ -486,7 +487,7 @@ class SubToolMakePoly(SubTool):
 #                        return True
         return False
 
-    def do_splite( self ) : 
+    def do_splite(self): 
         splite_end = False
         mirror_face = None
         if self.currentTarget.isFace :
@@ -497,10 +498,10 @@ class SubToolMakePoly(SubTool):
                 self.vert_array.add_line( vert )
                 self.bmo.UpdateMesh()
 
-        if self.currentTarget.isEdge :
+        if self.currentTarget.isEdge:
             if self.vert_array.faces[-1] in self.currentTarget.element.link_faces :
                 self.currentTarget = self.edge_split( self.currentTarget )
-                self.vert_array.add_line( self.currentTarget.element )
+                self.vert_array.add_line(self.currentTarget.element)
                 self.bmo.UpdateMesh()
                 splite_end = True
                 

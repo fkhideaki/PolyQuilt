@@ -343,23 +343,21 @@ def region_2d_to_location_3d(region, rv3d, coord, depth_location):
                                     origin_end,
                                     )[0]
 
-
-
-def location_3d_to_region_2d( coord ) :
+def location_3d_to_region_2d(coord):
     region = bpy.context.region
     rv3d = bpy.context.region_data
     perspective_matrix = rv3d.perspective_matrix
 
     prj = perspective_matrix @ Vector((coord[0], coord[1], coord[2], 1.0))
-    if prj.w > 0.0:
-        width_half = region.width / 2.0
-        height_half = region.height / 2.0 
-
-        return Vector((width_half + width_half * (prj.x / prj.w),
-                       height_half + height_half * (prj.y / prj.w),
-                       ))
-    else:
+    if prj.w <= 0.0:
         return None
+
+    hw = region.width / 2.0
+    hh = region.height / 2.0 
+
+    vx = hw * (1.0 + prj.x / prj.w)
+    vy = hh * (1.0 + prj.y / prj.w)
+    return Vector((vx, vy,))
 
 def TransformBMVerts( obj , verts ) : 
     Item = collections.namedtuple('Item', ('vert', 'region' , 'world' ))

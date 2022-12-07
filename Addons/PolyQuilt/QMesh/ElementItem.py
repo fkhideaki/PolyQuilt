@@ -232,8 +232,9 @@ class ElementItem :
 
     @staticmethod
     def FormVert( qmesh , v ):
-        p = pqutil.location_3d_to_region_2d( v.co )
-        return ElementItem( qmesh , v , p , qmesh.local_to_world_pos(v.co) , 0.0 )
+        p = pqutil.location_3d_to_region_2d(v.co)
+        lwp = qmesh.local_to_world_pos(v.co)
+        return ElementItem(qmesh, v, p, lwp, 0.0)
 
     @staticmethod
     def FormElement( qmesh ,e , co ):
