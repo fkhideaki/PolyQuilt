@@ -124,11 +124,17 @@ class SubToolBrushRelax(SubToolEx):
         occlusion_tbl_get = self.occlusion_tbl.get
         new_vec = mathutils.Vector
 
+        only_sel = self.preferences.only_select
+
         coords = []
         cm = {}
         for vt in verts:
             if not vt.select:
                 continue
+            if only_sel:
+                if not select_stack.vert_selection[vt.index]:
+                    continue
+
             co = vt.co
             is_occlusion = occlusion_tbl_get(vt)
             if is_occlusion is None:
@@ -160,6 +166,10 @@ class SubToolBrushRelax(SubToolEx):
         return cm
     
     def IsFixedVert(self, vt):
+        if self.preferences.fix_path_end:
+            if len(vt.link_edges) == 1:
+                return True
+
         fix_sharp = self.preferences.fix_sharp_edge
         fix_bound = self.preferences.fix_bound_edge
         if fix_sharp or fix_bound:
@@ -170,6 +180,7 @@ class SubToolBrushRelax(SubToolEx):
                 if fix_bound:
                     if e.is_boundary:
                         return True
+
         return False
 
     def DoRelax(self, context, coord) :

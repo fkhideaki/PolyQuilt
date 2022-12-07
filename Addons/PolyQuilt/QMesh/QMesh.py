@@ -131,25 +131,25 @@ class QMesh(QMeshOperators) :
                 return hitVert
             v1 = matrix @ hitVert.hitPosition.to_4d()
             v2 = matrix @ hitEdge.hitPosition.to_4d()
-            if v1.z <= v2.z :
+            if v1.z <= v2.z:
                 hitElement = hitVert
-            else :
+            else:
                 hitElement = hitEdge
-        elif hitVert.isNotEmpty :
+        elif hitVert.isNotEmpty:
             hitElement = hitVert
-        elif hitEdge.isNotEmpty :
+        elif hitEdge.isNotEmpty:
             hitElement = hitEdge
 
         return hitElement
 
 
-class SelectStack :
-    def __init__(self, context , bm) :
+class SelectStack:
+    def __init__(self, context, bm):
         self.context = context
         self.bm = bm
         self.mesh_select_mode = context.tool_settings.mesh_select_mode[0:3]
 
-    def push( self ) :
+    def push(self):
         self.mesh_select_mode = self.context.tool_settings.mesh_select_mode[0:3]
         self.vert_selection = [ v.select for v in self.bm.verts ]
         self.face_selection = [ f.select for f in self.bm.faces ]
@@ -157,17 +157,16 @@ class SelectStack :
         self.select_history = self.bm.select_history[:]
         self.mesh_select_mode = self.context.tool_settings.mesh_select_mode[0:3]
 
-    def select_mode( self , vert , edge , face ) :
-        self.context.tool_settings.mesh_select_mode = (vert , edge , face)
+    def select_mode(self, vert, edge, face):
+        self.context.tool_settings.mesh_select_mode = (vert, edge, face)
 
-
-    def pop( self ) :
-        for select , v in zip( self.vert_selection , self.bm.verts ) :
-            v.select = select
-        for select , f in zip( self.face_selection , self.bm.faces ) :
+    def pop(self):
+        for select, f in zip(self.face_selection, self.bm.faces):
             f.select = select
-        for select , e in zip( self.edge_selection , self.bm.edges ) :
+        for select, e in zip(self.edge_selection, self.bm.edges):
             e.select = select
+        for select, v in zip(self.vert_selection, self.bm.verts):
+            v.select = select
 
         self.bm.select_history = self.select_history
 
