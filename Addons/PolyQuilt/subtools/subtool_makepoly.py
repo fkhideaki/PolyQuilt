@@ -36,7 +36,7 @@ class vert_array_util :
     def get( self , index : int ) :
         return self.verts[index]
 
-    def add( self , vert ) :
+    def add(self, vert):
         world = self.qmesh.local_to_world_pos( vert.co )
         screen = pqutil.location_3d_to_region_2d( world )
         self.verts_list.append( [vert,vert.index,vert.co.copy(),world,screen] )
@@ -61,14 +61,14 @@ class vert_array_util :
         self.qmesh.UpdateMesh()                      
         return edge
 
-    def clear_verts( self ) :
+    def clear_verts(self):
         self.verts_list = []
 
-    def reset_verts( self ) :
+    def reset_verts(self):
         self.verts_list = [ self.verts_list[-1] ]
 
     @property
-    def vert_count( self ) :
+    def vert_count(self) :
         return len(self.verts_list)
 
     @property
@@ -120,7 +120,7 @@ class vert_array_util :
         return [ i[4] for i in self.verts_list ]
 
 
-class SubToolMakePoly(SubTool) :
+class SubToolMakePoly(SubTool):
     name = "MakePolyTool"
 
     def __init__(self,op,startElement , mouse_pos ) :
@@ -170,56 +170,14 @@ class SubToolMakePoly(SubTool) :
         return self.LMBEvent.is_animated()
 
     @staticmethod
-    def LMBEventCallback(self , event ):
-        if event.type == MBEventType.Down :
+    def LMBEventCallback(self, event):
+        if event.type == MBEventType.Down:
             pass
-        elif event.type == MBEventType.Release :
-            if self.currentTarget.element == self.vert_array.get(-1) :
-                self.isEnd = True
-            else :
-                if self.EdgeLoops != None :
-                    self.DoEdgeLoopsRemove( self.EdgeLoops , self.VertLoops )
-                    self.EdgeLoops = None
-                    self.VertLoops = None
-                    self.isEnd = True       
-                    self.bmo.UpdateMesh()
-                    self.currentTarget = ElementItem.Empty()
-
-                else :
-                    if self.mode == 'SPLITE' :
-                        self.do_splite()
-                    else :
-                        if self.currentTarget.isFace :
-                            wp = QSnap.view_adjust(self.currentTarget.hitPosition)                
-                            if  self.currentTarget.element in self.vert_array.verts[-1].link_faces :
-                                self.mode = 'SPLITE'
-                                self.vert_array.clear_edges()                             
-                                self.vert_array.add_face( self.currentTarget.element )
-                                vert = self.bmo.AddVertexWorld( wp )
-                                self.bmo.UpdateMesh()                      
-                                self.vert_array.add_line( vert )
-                                self.bmo.UpdateMesh()
-                            else :
-                                vert = self.bmo.AddVertexWorld( wp )
-                                self.bmo.UpdateMesh()
-                                self.currentTarget = ElementItem( self.bmo ,vert , self.mouse_pos , wp , 0.0 )
-
-                        if self.currentTarget.isEdge :
-                            self.currentTarget = self.edge_split( self.currentTarget )
-                            
-                        elif self.currentTarget.isEmpty :
-                            self.pivot = self.calc_planned_construction_position()
-                            vert = self.bmo.AddVertexWorld( self.pivot )
-                            self.bmo.UpdateMesh()                            
-                            self.currentTarget = ElementItem( self.bmo ,vert , self.mouse_pos , self.pivot , 0.0 )
-
-                        if self.currentTarget.isVert and self.mode != 'SPLITE' :
-                            if self.currentTarget.element not in self.vert_array.verts :
-                                self.isEnd = self.AddVert(self.currentTarget ) == False
-            self.currentTarget = ElementItem.Empty()                    
-        elif event.type == MBEventType.Click :            
+        elif event.type == MBEventType.Release:
+            SubToolMakePoly.onLMRelease(self)                    
+        elif event.type == MBEventType.Click:            
             pass
-        elif event.type == MBEventType.LongPress :
+        elif event.type == MBEventType.LongPress:
             if self.vert_array.vert_count <= 1 and self.currentTarget.isVert and self.vert_array.get(-1) != self.currentTarget.element :
                 edge = self.bmo.edges.get( (self.vert_array.get(0) , self.currentTarget.element) )
                 if edge != None and self.EdgeLoops == None :
@@ -247,6 +205,56 @@ class SubToolMakePoly(SubTool) :
             else :
                 self.PlanlagtePos = self.currentTarget.hitPosition
 
+    @staticmethod
+    def onLMRelease(self):
+        if self.currentTarget.element == self.vert_array.get(-1):
+            self.isEnd = True
+            self.currentTarget = ElementItem.Empty()
+            return
+
+        if self.EdgeLoops != None:
+            self.DoEdgeLoopsRemove(self.EdgeLoops, self.VertLoops)
+            self.EdgeLoops = None
+            self.VertLoops = None
+            self.isEnd = True       
+            self.bmo.UpdateMesh()
+            self.currentTarget = ElementItem.Empty()
+            return
+
+        if self.mode == 'SPLITE':
+            self.do_splite()
+            self.currentTarget = ElementItem.Empty()
+            return
+
+        if self.currentTarget.isFace :
+            wp = QSnap.view_adjust(self.currentTarget.hitPosition)                
+            if  self.currentTarget.element in self.vert_array.verts[-1].link_faces :
+                self.mode = 'SPLITE'
+                self.vert_array.clear_edges()                             
+                self.vert_array.add_face( self.currentTarget.element )
+                vert = self.bmo.AddVertexWorld( wp )
+                self.bmo.UpdateMesh()                      
+                self.vert_array.add_line( vert )
+                self.bmo.UpdateMesh()
+            else :
+                vert = self.bmo.AddVertexWorld( wp )
+                self.bmo.UpdateMesh()
+                self.currentTarget = ElementItem(self.bmo, vert, self.mouse_pos, wp, 0.0)
+
+        if self.currentTarget.isEdge :
+            self.currentTarget = self.edge_split(self.currentTarget)
+                
+        elif self.currentTarget.isEmpty :
+            self.pivot = self.calc_planned_construction_position()
+            vert = self.bmo.AddVertexWorld( self.pivot )
+            self.bmo.UpdateMesh()                            
+            self.currentTarget = ElementItem(self.bmo, vert, self.mouse_pos, self.pivot, 0.0)
+
+        if self.currentTarget.isVert and self.mode != 'SPLITE' :
+            if self.currentTarget.element not in self.vert_array.verts:
+                    self.isEnd = self.AddVert(self.currentTarget) == False
+
+        self.currentTarget = ElementItem.Empty()
 
     def OnUpdate( self , context , event ) :
         self.LMBEvent.Update( context , event )
@@ -272,7 +280,7 @@ class SubToolMakePoly(SubTool) :
             color = (color[0] , color[1] , color[2] , color[3] * 0.5)
             draw_util.draw_lines3D( context , self.bmo.mirror_world_poss(v3d) , color , self.preferences.highlight_line_width )
 
-    def OnDraw3D( self , context  ) :
+    def OnDraw3D(self, context) :
         alpha = self.preferences.highlight_face_alpha
         vertex_size = self.preferences.highlight_vertex_size        
         width = self.preferences.highlight_line_width
@@ -281,48 +289,50 @@ class SubToolMakePoly(SubTool) :
         polyVerts = self.vert_array.verts
         l = self.vert_array.vert_count
         v3d = self.vert_array.world_positions
-        v3d.append( self.PlanlagtePos )
+        v3d.append(self.PlanlagtePos)
 
-        if self.vert_array.vert_count == 1 :
-            same_edges , same_faces = self.CheckSameFaceAndEdge( self.vert_array.get(0) , self.currentTarget.element )
-            if same_edges :
-                if len(same_faces) > 1 :
-                    if self.LMBEvent.presureComplite :
+        if self.vert_array.vert_count == 1:
+            same_edges, same_faces = self.CheckSameFaceAndEdge(
+                self.vert_array.get(0),
+                self.currentTarget.element)
+            if same_edges:
+                if len(same_faces) > 1:
+                    if self.LMBEvent.presureComplite:
                         color = self.color_delete()
-                    else :
+                    else:
                         color = self.color_delete()
 
-            if self.will_splite :
+            if self.will_splite:
                 color = self.color_split()
 
-            elif same_faces :
+            elif same_faces:
                 color = self.color_split()
-            self.draw_lines( context , v3d , color )
+            self.draw_lines(context, v3d, color)
         elif self.vert_array.vert_count > 1:
             if self.mode == 'SPLITE' :
                 color = self.color_split()
             if self.currentTarget.element not in polyVerts and self.mode != 'SPLITE' :
                 v3d.append( v3d[0] )
-            self.draw_lines( context , v3d , color )
+            self.draw_lines(context, v3d, color)
 
-        if self.currentTarget.isNotEmpty :
+        if self.currentTarget.isNotEmpty:
             if self.currentTarget.element == self.vert_array.get(-1) :
                 draw_util.draw_pivots3D(  [self.PlanlagtePos,] , vertex_size * 1.5 , self.color_create() )
             elif self.currentTarget.element in polyVerts:
                 draw_util.draw_pivots3D(  [self.PlanlagtePos,] , vertex_size * 1.5 , self.color_delete() )
 
-            draw_util.draw_pivots3D( [self.PlanlagtePos,] , vertex_size , color )
+            draw_util.draw_pivots3D([self.PlanlagtePos,], vertex_size, color)
             if self.currentTarget.isVert or self.currentTarget.isEdge :
                 self.currentTarget.Draw( self.bmo.obj , self.color_highlight() , self.preferences )
-        else :
+        else:
             draw_util.draw_pivots3D( [self.PlanlagtePos,] , vertex_size , self.color_create() )
 
         draw_util.drawElementsHilight3D( self.bmo.obj , polyVerts , vertex_size ,width,alpha, self.color_create() )
 
-        if self.EdgeLoops != None :
+        if self.EdgeLoops != None:
             draw_util.drawElementsHilight3D( self.bmo.obj , self.EdgeLoops , vertex_size ,width,alpha, self.color_delete() )
 
-    def OnDraw( self , context  ) :
+    def OnDraw(self, context):
         if self.vert_array.vert_count == 1:
             text = None
             same_edges , same_faces = self.CheckSameFaceAndEdge( self.vert_array.get(0) , self.currentTarget.element )
@@ -335,9 +345,8 @@ class SubToolMakePoly(SubTool) :
                 text = "Line"                    
             if text != None :
                 self.LMBEvent.Draw( self.currentTarget.coord , text )
-#       if self.currentTarget.element in self.vert_array.verts:
-#           draw_util.DrawFont( "Finish" , 12 , self.currentTarget.coord , (0,2) )                   
-    def AddVert( self , target ) :
+                
+    def AddVert(self, target):
         ret = True
         dirty = False
 
@@ -347,7 +356,7 @@ class SubToolMakePoly(SubTool) :
                     self.bmo.AddVertex( self.bmo.mirror_pos( target.element.co ) , False )
                     self.bmo.UpdateMesh()
 
-            self.vert_array.add( target.element )
+            self.vert_array.add(target.element)
             ret = True
             pts = self.vert_array.vert_count
             # 既に存在する辺ならExit
@@ -446,10 +455,10 @@ class SubToolMakePoly(SubTool) :
 
         return wp
 
-    def edge_split( self , edgeItem ) :
+    def edge_split(self, edgeItem):
         pos = self.bmo.world_to_local_pos(edgeItem.hitPosition)
 
-        if self.bmo.check_near( pos , self.bmo.mirror_pos(pos) ) :
+        if self.bmo.check_near(pos, self.bmo.mirror_pos(pos) ) :
             pos = self.bmo.zero_pos(pos)
 
         new_edge , new_vert = self.bmo.edge_split_from_position( edgeItem.element , pos )
