@@ -216,7 +216,7 @@ class SubToolMakePoly(SubTool):
             self.DoEdgeLoopsRemove(self.EdgeLoops, self.VertLoops)
             self.EdgeLoops = None
             self.VertLoops = None
-            self.isEnd = True       
+            self.isEnd = True
             self.bmo.UpdateMesh()
             self.currentTarget = ElementItem.Empty()
             return
@@ -230,13 +230,13 @@ class SubToolMakePoly(SubTool):
             wp = QSnap.view_adjust(self.currentTarget.hitPosition)                
             if  self.currentTarget.element in self.vert_array.verts[-1].link_faces :
                 self.mode = 'SPLITE'
-                self.vert_array.clear_edges()                             
+                self.vert_array.clear_edges()
                 self.vert_array.add_face( self.currentTarget.element )
-                vert = self.bmo.AddVertexWorld( wp )
-                self.bmo.UpdateMesh()                      
-                self.vert_array.add_line( vert )
+                vert = self.bmo.AddVertexWorld(wp)
                 self.bmo.UpdateMesh()
-            else :
+                self.vert_array.add_line(vert)
+                self.bmo.UpdateMesh()
+            else:
                 vert = self.bmo.AddVertexWorld( wp )
                 self.bmo.UpdateMesh()
                 self.currentTarget = ElementItem(self.bmo, vert, self.mouse_pos, wp, 0.0)

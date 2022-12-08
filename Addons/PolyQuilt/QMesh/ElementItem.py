@@ -37,7 +37,7 @@ class EmptyElement :
         return []
 
 class ElementItem :
-    def __init__(self , qmesh , element : bmesh.types.BMVert , coord : Vector, hitPosition : Vector , dist = 0 ) :
+    def __init__(self, qmesh, element : bmesh.types.BMVert , coord : Vector, hitPosition : Vector , dist = 0 ) :
         self.__type = type(element)
         self.__index = element.index
         self.__element = element
@@ -67,11 +67,13 @@ class ElementItem :
 
     @property
     def element(self):
-        if self.isEdge :
+        if self.__index == -1:
+            return self.__element
+        if self.isEdge:
             return self.__qmesh.bm.edges[self.__index]
-        elif self.isVert :
+        elif self.isVert:
             return self.__qmesh.bm.verts[self.__index]
-        elif self.isFace :
+        elif self.isFace:
             return self.__qmesh.bm.faces[self.__index]
         return None
 
@@ -231,10 +233,11 @@ class ElementItem :
         return ElementItem( None , EmptyElement() , None , None , 0.0 )
 
     @staticmethod
-    def FormVert( qmesh , v ):
+    def FormVert(qmesh, v):
         p = pqutil.location_3d_to_region_2d(v.co)
         lwp = qmesh.local_to_world_pos(v.co)
-        return ElementItem(qmesh, v, p, lwp, 0.0)
+        e = ElementItem(qmesh, v, p, lwp, 0.0)
+        return e
 
     @staticmethod
     def FormElement( qmesh ,e , co ):
