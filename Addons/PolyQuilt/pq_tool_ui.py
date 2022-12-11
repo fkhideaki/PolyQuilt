@@ -183,36 +183,30 @@ class VIEW3D_PT_tools_polyquilt_options( Panel):
             icon_only = True,
             icon_value = custom_icon("icon_opt_x0"))
 
-        layout.label(text = "Fix Sharp Edge")
+        layout.label(text = "Fix")
         layout.prop(
             preferences,
             "fix_sharp_edge",
             toggle = True,
-            text = "On",
+            text = "Sharp Edge",
             icon_only = False)
-
-        layout.label(text = "Fix Bound Edge")
         layout.prop(
             preferences,
             "fix_bound_edge",
             toggle = True,
-            text = "On",
+            text = "Bound Edge",
             icon_only = False)
-
-        layout.label(text = "Fix Path End")
         layout.prop(
             preferences,
             "fix_path_end",
             toggle = True,
-            text = "On",
+            text = "Path End",
             icon_only = False)
-
-        layout.label(text = "Only Select")
         layout.prop(
             preferences,
             "only_select",
             toggle = True,
-            text = "On",
+            text = "Only Select",
             icon_only = False)
 
         layout.label( text = "Extrude" )

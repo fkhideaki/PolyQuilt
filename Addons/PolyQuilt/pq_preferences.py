@@ -229,7 +229,7 @@ class PolyQuiltPreferences(AddonPreferences):
         description="Brush Size",
         default=50.0,
         min=5.0,
-        max=200.0)    
+        max=200.0)
 
     brush_strength : bpy.props.FloatProperty(
         name="Brush Strength",
