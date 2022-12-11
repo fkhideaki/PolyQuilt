@@ -82,18 +82,23 @@ class SubToolBrushDelete(SubToolEx) :
 
     def OnDraw3D( self , context  ) :
         alpha = self.preferences.highlight_face_alpha
-        vertex_size = self.preferences.highlight_vertex_size        
-        width = self.preferences.highlight_line_width        
+        vertex_size = self.preferences.highlight_vertex_size
+        width = self.preferences.highlight_line_width
         color = self.preferences.delete_color 
         draw_util.drawElementsHilight3D( self.bmo.obj , self.remove_faces , vertex_size , width , alpha , color )
 
-    def collect_faces( self , context , coord ) :
+    def collect_faces(self, context, coord):
         radius = self.radius
         bm = self.bmo.bm
 
         select_stack = SelectStack(context, bm)
-        select_stack.select_mode(False, False, True)
-        bpy.ops.view3d.select_circle( x = int(coord.x) , y = int(coord.y) , radius = int(radius) , wait_for_input=False, mode='SET' )
+        context.tool_settings.mesh_select_mode = (False, False, True)
+        bpy.ops.view3d.select_circle(
+            x = int(coord.x),
+            y = int(coord.y),
+            radius = int(radius),
+            wait_for_input=False,
+            mode='SET')
         faces = { f for f in self.bmo.bm.faces if f.select }
         select_stack.pop()
         return faces

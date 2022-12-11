@@ -111,7 +111,7 @@ class SubToolBrushRelax(SubToolEx):
         verts = bm.verts
 
         select_stack = SelectStack(context, bm)
-        select_stack.select_mode(True, False, False)
+        context.tool_settings.mesh_select_mode = (True, False, False)
         bpy.ops.view3d.select_circle(
             x = int(coord.x),
             y = int(coord.y),
