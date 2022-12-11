@@ -91,11 +91,8 @@ class SubToolBrushMove(SubToolEx) :
         verts = bm.verts
 
         select_stack = SelectStack( context , bm )
-
-        select_stack.push()
-        select_stack.select_mode(True,False,False)
+        select_stack.select_mode(True, False, False)
         bpy.ops.view3d.select_circle( x = int(coord.x) , y = int(coord.y) , radius = int(radius) , wait_for_input=False, mode='SET' )
-#        bm.select_flush(False)
 
         new_vec = mathutils.Vector
         pw = (self.strength * self.strength ) * 8

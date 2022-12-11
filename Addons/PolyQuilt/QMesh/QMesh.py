@@ -28,10 +28,9 @@ from .ElementItem import ElementItem
 from .QMeshOperators import QMeshOperators
 from .QMeshHighlight import QMeshHighlight
 
-__all__ = ['QMesh','SelectStack']
-        
-class QMesh(QMeshOperators) :
+__all__ = ['QMesh', 'SelectStack']
 
+class QMesh(QMeshOperators) :
     def __init__(self , obj , preferences) :
         super().__init__(obj, preferences)
         self.highlight = QMeshHighlight(self)
@@ -148,14 +147,10 @@ class SelectStack:
         self.context = context
         self.bm = bm
         self.mesh_select_mode = context.tool_settings.mesh_select_mode[0:3]
-
-    def push(self):
-        self.mesh_select_mode = self.context.tool_settings.mesh_select_mode[0:3]
         self.vert_selection = [ v.select for v in self.bm.verts ]
         self.face_selection = [ f.select for f in self.bm.faces ]
         self.edge_selection = [ e.select for e in self.bm.edges ]
         self.select_history = self.bm.select_history[:]
-        self.mesh_select_mode = self.context.tool_settings.mesh_select_mode[0:3]
 
     def select_mode(self, vert, edge, face):
         self.context.tool_settings.mesh_select_mode = (vert, edge, face)

@@ -626,22 +626,22 @@ class QMeshOperators :
 
 
     def calc_shortest_pass( self , bm , start , end ) :
-        from .QMesh import SelectStack        
+        from .QMesh import SelectStack
 
-        if isinstance( start , bmesh.types.BMFace ) :
+        if isinstance( start , bmesh.types.BMFace ):
             for edge in start.edges :
                 if end in edge.link_faces :
-                    return ([start,end],[])
-        elif isinstance( start , bmesh.types.BMEdge ) :
+                    return ([start, end], [])
+        elif isinstance( start , bmesh.types.BMEdge ):
             for vert in start.verts :
                 if end in vert.link_edges :
-                    return ([start,end],[])
-        elif isinstance( start , bmesh.types.BMVert ) :
+                    return ([start, end], [])
+        elif isinstance( start , bmesh.types.BMVert ):
             for edge in start.link_edges :
                 if end in edge.verts :
-                    return ([edge],[])
+                    return ([edge], [])
 
-        def calc( s , e ) :
+        def calc(s, e):
             if s == e :
                 return [s]
 
@@ -671,9 +671,7 @@ class QMeshOperators :
 
             return ss
 
-
-        select = SelectStack( bpy.context , bm )
-        select.push()
+        select = SelectStack(bpy.context, bm)
 
         if isinstance( start , bmesh.types.BMVert ) and isinstance( end , bmesh.types.BMEdge ) :
             c0 = calc( start , end.verts[0] )
@@ -682,17 +680,17 @@ class QMeshOperators :
             l1 = sum( [ e.calc_length() for e in c1 if isinstance( e , bmesh.types.BMEdge ) ] )
             collect = c0 if l0 < l1 else c1
             if end not in collect :
-                collect.append( end )
+                collect.append(end)
         elif isinstance( start , bmesh.types.BMEdge ) and isinstance( end , bmesh.types.BMVert ) :
             c0 = calc( start.verts[0] , end )
             c1 = calc( start.verts[1] , end )
             l0 = sum( [ e.calc_length() for e in c0 if not isinstance( e , bmesh.types.BMVert ) ] )
             l1 = sum( [ e.calc_length() for e in c1 if not isinstance( e , bmesh.types.BMVert ) ] )
             collect = c0 if l0 < l1 else c1
-            if start not in collect :
-                collect.append( start )
+            if start not in collect:
+                collect.append(start)
         else :
-            collect = calc( start , end )
+            collect = calc(start, end)
 
         select.pop()
-        return ( collect , [] )
+        return (collect, [])

@@ -236,7 +236,7 @@ class QSnap:
             if (location_r - ray.origin).length <= (location_i - ray.origin).length :
                 return location_r , normal_r , face_r
             else :
-                return location_i , normal_i , face_i        
+                return location_i , normal_i , face_i
         return None , None , None
 
     def __find_nearest(self, pos : mathutils.Vector):

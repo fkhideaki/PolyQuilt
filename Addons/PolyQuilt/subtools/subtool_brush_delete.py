@@ -91,9 +91,8 @@ class SubToolBrushDelete(SubToolEx) :
         radius = self.radius
         bm = self.bmo.bm
 
-        select_stack = SelectStack( context , bm )
-        select_stack.push()
-        select_stack.select_mode(False,False,True)
+        select_stack = SelectStack(context, bm)
+        select_stack.select_mode(False, False, True)
         bpy.ops.view3d.select_circle( x = int(coord.x) , y = int(coord.y) , radius = int(radius) , wait_for_input=False, mode='SET' )
         faces = { f for f in self.bmo.bm.faces if f.select }
         select_stack.pop()
