@@ -65,8 +65,95 @@ def batch_draw( shader , primitiveType , content  , indices = None ) :
     return batch
 
 #shader2D = gpu.types.GPUShader(vertex_shader, fragment_shader)
-shader2D = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
-shader3D = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+shader2D = gpu.shader.from_builtin('UNIFORM_COLOR')
+shader3D = gpu.shader.from_builtin('UNIFORM_COLOR')
+
+def gl_blend(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_BLEND)
+    else:
+        bgl.glDisable(bgl.GL_BLEND)
+    '''
+    pass
+def gl_line_smooth(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_LINE_SMOOTH)
+    else:
+        bgl.glDisable(bgl.GL_LINE_SMOOTH)
+    '''
+    pass
+def gl_depth_test(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_DEPTH_TEST)
+    else:
+        bgl.glDisable(bgl.GL_DEPTH_TEST)
+    '''
+    pass
+def gl_polygon_offset_line(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_POLYGON_OFFSET_LINE)
+    else:
+        bgl.glDisable(bgl.GL_POLYGON_OFFSET_LINE)
+    '''
+    pass
+def gl_polygon_offset_fill(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL)
+    else:
+        bgl.glDisable(bgl.GL_POLYGON_OFFSET_FILL)
+    '''
+    pass
+def gl_polygon_offset_point(enable):
+    '''
+    if enable:
+        bgl.glEnable(bgl.GL_POLYGON_OFFSET_POINT)
+    else:
+        bgl.glDisable(bgl.GL_POLYGON_OFFSET_POINT)
+    '''
+    pass
+def gl_line_width(width):
+    '''
+    bgl.glLineWidth(width)
+    '''
+    pass
+def gl_point_size(sz):
+    '''
+    bgl.glPointSize(width)
+    '''
+    pass
+def gl_depth_mask(enable):
+    '''
+    if enable:
+        bgl.glDepthMask(bgl.GL_TRUE)
+    else:
+        bgl.glDepthMask(bgl.GL_FALSE)
+    '''
+    pass
+def gl_depthfunc_lequal():
+    '''
+    bgl.glDepthFunc(bgl.GL_LEQUAL)
+    '''
+    pass
+def gl_depthfunc_always():
+    '''
+    bgl.glDepthFunc(bgl.GL_ALWAYS)
+    '''
+    pass
+def gl_depthfunc_greater():
+    '''
+    bgl.glDepthFunc(bgl.GL_GREATER)
+    '''
+    pass
+def gl_polygon_offset_1_1():
+    '''
+    bgl.glPolygonOffset(1.0, 1.0)
+    '''
+    pass
 
 def draw_circle2D( pos , radius , color = (1,1,1,1), fill = False , subdivide = 64 , dpi = True, width : float = 1.0  ):
     if dpi :
@@ -76,16 +163,16 @@ def draw_circle2D( pos , radius , color = (1,1,1,1), fill = False , subdivide = 
     dr = math.pi * 2 / subdivide
     vertices = [( pos[0] + r * math.cos(i*dr), pos[1] + r * math.sin(i*dr)) for i in range(subdivide+1)]
 
-    bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    bgl.glLineWidth(width )   
-    bgl.glEnable(bgl.GL_BLEND)    
-    bgl.glDisable(bgl.GL_DEPTH_TEST)    
+    gl_line_smooth(True)
+    gl_line_width(width)
+    gl_blend(True)
+    gl_depth_test(False)
     shader2D.bind()
     shader2D.uniform_float("color", color )
     primitiveType = 'TRI_FAN' if fill else 'LINE_STRIP'
     batch_draw(shader2D, primitiveType , {"pos": vertices} )
-    bgl.glLineWidth(1)
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)    
+    gl_line_width(1)
+    gl_line_smooth(False)
 
 def draw_donuts2D( pos , radius_out , width , rate , color = (1,1,1,1) ):
     r = radius_out * dpm()
@@ -98,45 +185,45 @@ def draw_donuts2D( pos , radius_out , width , rate , color = (1,1,1,1) ):
     draw_lines2D( vertices , color , width* dpm()  )
 
 def draw_lines2D( verts , color = (1,1,1,1) , width : float = 1.0 ):
-    bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    bgl.glLineWidth(width )    
-    bgl.glEnable(bgl.GL_BLEND)
+    gl_line_smooth(True)
+    gl_line_width(width)
+    gl_blend(True)
     shader2D.bind()
     shader2D.uniform_float("color", color )
     batch_draw(shader2D, 'LINE_STRIP', {"pos": verts} )
-    bgl.glLineWidth(1)
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)    
-    bgl.glDisable(bgl.GL_BLEND)
+    gl_line_width(1)
+    gl_line_smooth(False)
+    gl_blend(False)
 
 def draw_poly2D( verts , color = (1,1,1,1) ):
-    bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    bgl.glEnable(bgl.GL_BLEND)
+    gl_line_smooth(True)
+    gl_blend(True)
     shader2D.bind()
     shader2D.uniform_float("color", color )
     batch_draw(shader2D, 'TRIS', {"pos": verts} )
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)    
-    bgl.glDisable(bgl.GL_BLEND)
+    gl_line_smooth(False)
+    gl_blend(False)
 
 def begin2d() :
-    bgl.glDisable(bgl.GL_DEPTH_TEST)
+    gl_depth_test(False)
 
 def draw_loop3D(context, verts, color = (1,1,1,1), width : float = 1.0, hide_alpha : float = 1.0):
     draw_lines3D(context, verts, color, width, hide_alpha, 'LINE_LOOP')
 
 def draw_lines3D(context, verts, color = (1,1,1,1), width : float = 1.0 , hide_alpha : float = 1.0 , primitiveType = 'LINE_STRIP' ):
-    bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    bgl.glLineWidth(width )    
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glEnable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthMask(bgl.GL_FALSE)
-    bgl.glEnable(bgl.GL_POLYGON_OFFSET_LINE)
-    bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL)    
-    bgl.glPolygonOffset(1.0, 1.0)
+    gl_line_smooth(True)
+    gl_line_width(width)
+    gl_blend(True)
+    gl_depth_test(True)
+    gl_depth_mask(False)
+    gl_polygon_offset_line(True)
+    gl_polygon_offset_fill(True)
+    gl_polygon_offset_1_1()
 
     if hide_alpha < 0.99 :
-        bgl.glDepthFunc( bgl.GL_LEQUAL )
+        gl_depthfunc_lequal()
     else :
-        bgl.glDepthFunc( bgl.GL_ALWAYS )
+        gl_depthfunc_always()
 
 #   shader3D.uniform_float("modelMatrix", Matrix.Identity(4) )
     shader3D.bind()
@@ -147,23 +234,23 @@ def draw_lines3D(context, verts, color = (1,1,1,1), width : float = 1.0 , hide_a
     batch = batch_draw(shader3D, primitiveType , {"pos": verts} )
 
     if hide_alpha < 0.99 :
-        bgl.glDepthFunc( bgl.GL_GREATER )
+        gl_depthfunc_greater()
         shader3D.uniform_float("color", (color[0],color[1],color[2],color[3] * hide_alpha) )
         batch.draw(shader3D)
 
-    bgl.glLineWidth(1)
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)    
-    bgl.glDisable(bgl.GL_BLEND)
-    bgl.glDisable(bgl.GL_POLYGON_OFFSET_LINE)
-    bgl.glDisable(bgl.GL_POLYGON_OFFSET_FILL)
+    gl_line_width(1)
+    gl_line_smooth(False)
+    gl_blend(False)
+    gl_polygon_offset_line(False)
+    gl_polygon_offset_fill(False)
 
 def draw_Poly3D( context , verts , color = (1,1,1,1) , hide_alpha = 0.5 ):
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glEnable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthFunc(bgl.GL_LEQUAL)
-    bgl.glDepthMask(bgl.GL_FALSE)
-    bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL)
-    bgl.glPolygonOffset(1.0, 1.0)
+    gl_blend(True)
+    gl_depth_test(True)
+    gl_depthfunc_lequal()
+    gl_depth_mask(False)
+    gl_polygon_offset_fill(True)
+    gl_polygon_offset_1_1()
 
     polys = mathutils.geometry.tessellate_polygon( (verts,) )
     shader3D.bind()
@@ -171,37 +258,37 @@ def draw_Poly3D( context , verts , color = (1,1,1,1) , hide_alpha = 0.5 ):
     batch = batch_draw(shader3D, 'TRIS', {"pos": verts } , indices=polys )
 
     if hide_alpha > 0.0 :
-        bgl.glDepthFunc( bgl.GL_GREATER )
+        gl_depthfunc_greater()
         shader3D.uniform_float("color", (color[0],color[1],color[2],color[3] * hide_alpha) )
         batch.draw(shader3D )
 
-    bgl.glDisable(bgl.GL_BLEND)
-    bgl.glDisable(bgl.GL_POLYGON_OFFSET_FILL)
+    gl_blend(False)
+    gl_polygon_offset_fill(False)
 
 def draw_pivots3D( poss , radius , color = (1,1,1,1) ):
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)        
-    bgl.glPointSize(radius * dpm() * 2 )
-    bgl.glDisable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthMask(bgl.GL_FALSE)
+    gl_blend(True)
+    gl_line_smooth(False)
+    gl_point_size(radius * dpm() * 2)
+    gl_depth_test(False)
+    gl_depth_mask(False)
     
-    bgl.glEnable(bgl.GL_POLYGON_OFFSET_POINT)
-    bgl.glPolygonOffset(1.0, 1.0)
+    gl_polygon_offset_point(True)
+    gl_polygon_offset_1_1()
 
     shader3D.bind()
     shader3D.uniform_float("color", color )
     batch_draw(shader3D, 'POINTS', {"pos": poss} )
 
-    bgl.glPointSize(1 )
-    bgl.glDisable(bgl.GL_POLYGON_OFFSET_POINT)
+    gl_point_size(1)
+    gl_polygon_offset_point(False)
 
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glDisable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthMask(bgl.GL_FALSE)
+    gl_blend(True)
+    gl_depth_test(False)
+    gl_depth_mask(False)
 
 
 def draw_Face3D( obj , face : bmesh.types.BMFace , color = (1,1,1,1) , isFill = True ):
-    bgl.glEnable(bgl.GL_BLEND)
+    gl_blend(True)
 
     if isFill :
         vs = [ obj.matrix_world @ v.vert.co for v in face.loops ]
@@ -217,15 +304,15 @@ def draw_Face3D( obj , face : bmesh.types.BMFace , color = (1,1,1,1) , isFill = 
         shader3D.bind()
         shader3D.uniform_float("color", color )
         batch_draw(shader3D, 'LINES', {"pos": verts} )
-    bgl.glDisable(bgl.GL_BLEND)
+    gl_blend(False)
 
 
 def draw_Edge3D( obj , edge : bmesh.types.BMEdge , color = (1,1,1,1) , width = 1 ):
-    bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    bgl.glLineWidth(width)    
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glDepthFunc(bgl.GL_ALWAYS)
-    bgl.glDepthMask(bgl.GL_FALSE)
+    gl_line_smooth(True)
+    gl_line_width(width)
+    gl_blend(True)
+    gl_depthfunc_always()
+    gl_depth_mask(False)
 
     verts = ( obj.matrix_world @ edge.verts[0].co ,  obj.matrix_world @ edge.verts[1].co )
 
@@ -233,9 +320,9 @@ def draw_Edge3D( obj , edge : bmesh.types.BMEdge , color = (1,1,1,1) , width = 1
     shader3D.uniform_float("color", color )
     batch = batch_for_shader(shader3D, 'LINES', {"pos": verts} )
     batch.draw(shader3D)
-    bgl.glLineWidth(1)
-    bgl.glDisable(bgl.GL_LINE_SMOOTH)    
-    bgl.glDisable(bgl.GL_BLEND)
+    gl_line_width(1)
+    gl_line_smooth(False)
+    gl_blend(False)
 
 
 def drawElementsHilight3D( obj , elements, radius,width ,alpha, color = (1,1,1,1) ) :
@@ -250,9 +337,9 @@ def drawElementsHilight3DFunc( obj , elements, radius,width ,alpha, color = (1,1
     return func
 
 def drawElementHilight3D( obj , element, radius ,width , alpha, color = (1,1,1,1) ) :
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glDisable(bgl.GL_DEPTH_TEST)
-    bgl.glDepthMask(bgl.GL_FALSE)
+    gl_blend(True)
+    gl_depth_test(False)
+    gl_depth_mask(False)
 
     if isinstance( element , bmesh.types.BMVert ) :
         v = obj.matrix_world @ element.co
@@ -262,9 +349,9 @@ def drawElementHilight3D( obj , element, radius ,width , alpha, color = (1,1,1,1
     elif isinstance( element , bmesh.types.BMEdge ) :
         draw_Edge3D(obj,element,color,width)
 
-    bgl.glEnable(bgl.GL_DEPTH_TEST)
-    bgl.glDisable(bgl.GL_BLEND)  
-    bgl.glDepthMask(bgl.GL_FALSE)
+    gl_depth_test(True)
+    gl_blend(False)
+    gl_depth_mask(False)
 
 def drawElementHilight3DFunc(obj, element, radius, width, alpha, color = (1,1,1,1)):
     matrix_world = copy.copy(obj.matrix_world)
@@ -280,35 +367,35 @@ def drawElementHilight3DFunc(obj, element, radius, width, alpha, color = (1,1,1,
         vs = [ matrix_world @ v.vert.co for v in element.loops ]
         polys = mathutils.geometry.tessellate_polygon( (vs,) )
         def draw() :
-            bgl.glEnable(bgl.GL_BLEND)
-            bgl.glDisable(bgl.GL_DEPTH_TEST)
-            bgl.glDepthMask(bgl.GL_FALSE)
+            gl_blend(True)
+            gl_depth_test(False)
+            gl_depth_mask(False)
 
             shader3D.bind()
             shader3D.uniform_float("color",  (color[0],color[1],color[2],color[3] * alpha) )
             batch_draw(shader3D, 'TRIS', {"pos": vs } , indices=polys )
-            bgl.glDisable(bgl.GL_BLEND)
-            bgl.glDisable(bgl.GL_DEPTH_TEST)
-            bgl.glDepthMask(bgl.GL_FALSE)
+            gl_blend(False)
+            gl_depth_test(False)
+            gl_depth_mask(False)
         return draw
 
     elif isinstance( element , bmesh.types.BMEdge ) :
         verts = ( matrix_world @ element.verts[0].co ,  matrix_world @ element.verts[1].co )
         def draw() :
-            bgl.glEnable(bgl.GL_BLEND)
+            gl_blend(True)
 
-            bgl.glEnable(bgl.GL_LINE_SMOOTH)
-            bgl.glLineWidth(width)    
-            bgl.glDepthFunc(bgl.GL_ALWAYS)
-            bgl.glDepthMask(bgl.GL_FALSE)
+            gl_line_smooth(True)
+            gl_line_width(width)
+            gl_depthfunc_always()
+            gl_depth_mask(False)
 
             shader3D.bind()
             shader3D.uniform_float("color", color )
             batch = batch_for_shader(shader3D, 'LINES', {"pos": verts} )
             batch.draw(shader3D)
-            bgl.glLineWidth(1)
-            bgl.glDisable(bgl.GL_LINE_SMOOTH)    
-            bgl.glDisable(bgl.GL_BLEND)
+            gl_line_width(1)
+            gl_line_smooth(False)
+            gl_blend(False)
         return draw
 
     return None
@@ -347,5 +434,3 @@ class push_pop_projection2D:
         if (exc_type!=None):
             #return True  #例外を抑制するには
             return False #例外を伝播する
-
-
