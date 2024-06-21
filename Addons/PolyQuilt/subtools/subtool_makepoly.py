@@ -174,8 +174,8 @@ class SubToolMakePoly(SubTool):
         if event.type == MBEventType.Down:
             pass
         elif event.type == MBEventType.Release:
-            SubToolMakePoly.onLMRelease(self)                    
-        elif event.type == MBEventType.Click:            
+            SubToolMakePoly.onLMRelease(self)
+        elif event.type == MBEventType.Click:
             pass
         elif event.type == MBEventType.LongPress:
             if self.vert_array.vert_count <= 1 and self.currentTarget.isVert and self.vert_array.get(-1) != self.currentTarget.element :

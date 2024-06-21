@@ -34,7 +34,7 @@ class QSnap:
         cls.ref = cls.ref + 1
 
     @classmethod
-    def remove_ref(cls) :            
+    def remove_ref(cls):
         cls.ref = cls.ref - 1
         if cls.ref == 0 :
             if cls.instance :
@@ -55,10 +55,7 @@ class QSnap:
         self.bvh_list = None
 
     def __update(self, context) :
-        if not context.scene.tool_settings.use_snap:
-            self.remove_tree()
-            return
-        if not 'FACE' in context.scene.tool_settings.snap_elements:
+        if not self.new_method(context):
             self.remove_tree()
             return
 
@@ -68,6 +65,14 @@ class QSnap:
 
         self.remove_tree()
         self.create_tree(context)
+
+    def new_method(self, context):
+        ts = context.scene.tool_settings
+        if not ts.use_snap:
+            return False
+        #if not 'FACE' in ts.snap_elements:
+        #    return False
+        return True
 
     @staticmethod
     def snap_objects(context):
