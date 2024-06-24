@@ -55,7 +55,7 @@ class QSnap:
         self.bvh_list = None
 
     def __update(self, context) :
-        if not self.new_method(context):
+        if not self.isEnableSnap(context):
             self.remove_tree()
             return
 
@@ -66,7 +66,7 @@ class QSnap:
         self.remove_tree()
         self.create_tree(context)
 
-    def new_method(self, context):
+    def isEnableSnap(self, context):
         ts = context.scene.tool_settings
         if not ts.use_snap:
             return False
