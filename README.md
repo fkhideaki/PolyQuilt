@@ -1,19 +1,7 @@
-I am currently working on an English document. [Click here](https://github.com/sakana3/PolyQuilt/releases/download/1.3.1/PolyQuilt_v1.3.1.zip) to download the latest version.  
-If you are using Blender2.82 and earlier. [Click here](#OldVersion)
-
 # PolyQuilt(ポリキルト)
 ---
-PolyQuiltはローポリモデリングをサポートするBlender2.8用アドオンです。シンプルでオーソドックスでオールドスクールな面張り機能に加えてドラッグや長押し等のマウスオペレーションに様々な機能を割り振ることでツールの切り替えを最小限にしてポリゴンモデリングを支援します。
+PolyQuiltはローポリモデリングをサポートするBlender用アドオンです。シンプルでオーソドックスでオールドスクールな面張り機能に加えてドラッグや長押し等のマウスオペレーションに様々な機能を割り振ることでツールの切り替えを最小限にしてポリゴンモデリングを支援します。
 またタブレットやデジタイザ付きタブレットPCとの相性も良く、操作量を減らしつつ直感的にモデリングを行う事ができます。
-
-# 導入方法
-
-最新版ダウンロードは[こちら](https://github.com/sakana3/PolyQuilt/releases/download/1.3.1/PolyQuilt_v1.3.1.zip)から（Blender2.83 LTS以降）  
-Blender2.82以前の方は[こちら](#OldVersion)から  
-
-ダウンロードして編集→設定→アドオン→インストールよりダウンロード先を指定してインストールしてください。インストールした段階ではまだ使えませんのでその後検索バーよりPolyQuiltを検索しチェックボックスをOnにしてください。
-
-編集モードに入るとPolyBuildの下にアイコンが追加されているのでこれをクリックでPolyQuiltがアクティブツールになります。
 
 # 機能一覧
 
@@ -79,32 +67,3 @@ Altでホールドと同等の動作になります。Altキーダブルクリ�
 ## ループカット
 
 辺ループをカットします
-
-# 環境設定
-
-ドキュメント準備中
-
-## Extra Setting
-特別な設定群です。上級者向け
-
-### Check PolyQuilt add-on update 
-
-ポリキルトを更新をチェックし最新版にアップデートする事ができます。上手くいかない場合は従来通りの方法でお願いします。
-
-### ゲームエンジン風キーマップをセットアップ
-
-右マウスボタン＋ドラッグでの視点変更にキーマップをセットアップします。標準で割り振られているコンテキストメニューはクリックで開く為、操作が被る事なくUnityやUE4といった主要ゲームエンジン風の操作を行う事ができます。キーマップを書き換える為、独自カスタムや他のアドオンとの衝突する場合があるので注意してください。
-
-# フィードバック
-
-フィードバックはGithubの[Issues](https://github.com/sakana3/PolyQuilt/issues)かTwitterアカウント[sakana3](https://twitter.com/sakanaya) まで宜しくお願い致します。
-
-# 実装予定
-
-- [ ] 分離(Rip)
-- [ ] LoopCutの末端三角形対応
-- [ ] 選択
-- [x] ハンドリトポ編集
-
-# OldVersion
-For Blender2.82 and earlier. [Click here](https://github.com/sakana3/PolyQuilt/releases/download/1.2.0/PolyQuilt_v1.2.0.zip)

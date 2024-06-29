@@ -15,7 +15,7 @@ bl_info = {
     "name" : "PolyQuilt",
     "author" : "Sakana3",
     "version": (1, 3, 1),
-    "blender" : (2, 83, 0),
+    "blender" : (4, 1, 0),
     "location": "View3D > Mesh > PolyQuilt",
     "description": "Lowpoly Tool",
     "warning" : "",
@@ -69,7 +69,7 @@ def unregister():
         bpy.utils.unregister_tool(tool['tool'])
 
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)        
+        bpy.utils.unregister_class(cls)
 
     bpy.utils.unregister_class(pq_operator_add_empty_object.OBJECT_OT_add_object)
     bpy.utils.unregister_manual_map(pq_operator_add_empty_object.add_object_manual_map)
