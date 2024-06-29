@@ -43,19 +43,29 @@ class ToolPolyQuiltBase(WorkSpaceTool):
             item = ("mesh.poly_quilt", key , prop )
             return item
 
-        return (
-            keyitem( ""  , main_tool ) ,  
-            keyitem( "s" , shift ) ,  
-            keyitem( "c" , ctrl ) ,  
-            keyitem( "a" , alt ) ,  
-            keyitem( "cs" , ['NONE'] ) ,  
-            keyitem( "sa" , ['NONE'] ) ,  
-            keyitem( "ca" , ['NONE'] ) ,  
-            keyitem( "os" , ['NONE'] ) ,  
-            keyitem( "oc" , ['NONE'] ) ,  
-            keyitem( "oa" , ['NONE'] ) ,  
+        def switchMode(tool, key, alt):
+            k = {"type": key, "value": 'PRESS', "alt": alt}
+            p = {"properties": [("name", tool)]}
+            return ("wm.tool_set_by_id", k, p)
 
-            ("mesh.poly_quilt_daemon", {"type": 'MOUSEMOVE', "value": 'ANY' }, {"properties": []}),        
+        return (
+            keyitem("", main_tool),
+            keyitem("s", shift),
+            keyitem("c", ctrl),
+            keyitem("a", alt),
+            keyitem("cs", ['NONE']),
+            keyitem("sa", ['NONE']),
+            keyitem("ca", ['NONE']),
+            keyitem("os", ['NONE']),
+            keyitem("oc", ['NONE']),
+            keyitem("oa", ['NONE']),
+
+            switchMode('mesh_tool.poly_quilt', 'ONE', True),
+            switchMode('mesh_tool.poly_quilt_brush', 'TWO', True),
+            switchMode('mesh_tool.poly_quilt_knife', 'THREE', True),
+            switchMode('mesh_tool.poly_quilt_delete', 'FOUR', True),
+
+            ("mesh.poly_quilt_daemon", {"type": 'MOUSEMOVE', "value": 'ANY' }, {"properties": []}),
         )
 
     @classmethod
