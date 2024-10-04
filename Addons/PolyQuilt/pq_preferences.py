@@ -112,7 +112,7 @@ class PolyQuiltPreferences(AddonPreferences):
         max=1.0,
         size=4,
         subtype='COLOR'
-    )
+    ) # type: ignore
 
     makepoly_color : FloatVectorProperty(
         name="MakePolyColor",
@@ -122,7 +122,7 @@ class PolyQuiltPreferences(AddonPreferences):
         max=1.0,
         size=4,
         subtype='COLOR'
-    )
+    ) # type: ignore
 
     split_color : FloatVectorProperty(
         name="SplitColor",
@@ -132,7 +132,7 @@ class PolyQuiltPreferences(AddonPreferences):
         max=1.0,
         size=4,
         subtype='COLOR'
-    )
+    ) # type: ignore
 
     threshold : FloatVectorProperty(
         name="DeleteColor",
@@ -142,7 +142,7 @@ class PolyQuiltPreferences(AddonPreferences):
         max=1.0,
         size=4,
         subtype='COLOR'
-    )
+    ) # type: ignore
 
     delete_color : FloatVectorProperty(
         name="DeleteColor",
@@ -152,69 +152,69 @@ class PolyQuiltPreferences(AddonPreferences):
         max=1.0,
         size=4,
         subtype='COLOR'
-    )
+    ) # type: ignore
 
     distance_to_highlight : FloatProperty(
         name="distance_to_highlight",
         description="distance_to_highlight",
         default=4.0,
         min=1.0,
-        max=10.0)
+        max=10.0) # type: ignore
 
     highlight_vertex_size : FloatProperty(
         name="Highlight Vertex Size",
         description="Highlight Vertex Size",
         default= 1.25,
         min=0.5,
-        max=8.0)
+        max=8.0) # type: ignore
 
     highlight_line_width : FloatProperty(
         name="Highlight Line Width",
         description="Highlight Line Width",
         default=2.0,
         min=1.0,
-        max=10.0)
+        max=10.0) # type: ignore
 
     highlight_face_alpha : FloatProperty(
         name="Highlight Face Alpha",
         description="Highlight Face Alpha",
         default=0.2,
         min=0.1,
-        max=1.0)
+        max=1.0) # type: ignore
 
     longpress_time : FloatProperty(
         name="LongPressTime",
         description="Long press Time",
         default=0.4,
         min=0.2,
-        max=1.0)
+        max=1.0) # type: ignore
 
     marker_size : bpy.props.FloatProperty(
         name="Marker Size",
         description="Marker Size",
         default=1.0,
         min=0.1,
-        max=5.0)    
+        max=5.0) # type: ignore
 
 
     extra_setting_expanded : BoolProperty(
         name="Extra",
         description="Extra",
         default=False
-    )
+    ) # type: ignore
 
     is_debug : BoolProperty(
         name="is Debug",
         description="is Debug",
         default=False
-    )
+    ) # type: ignore
 
     # for add-on updater
     updater_branch_to_update : EnumProperty(
         name="branch",
         description="Target branch to update add-on",
         items=get_update_candidate_branches
-    )
+    ) # type: ignore
 
     loopcut_division : bpy.props.IntProperty(
         name="LoopCut DIVISON",
@@ -222,51 +222,51 @@ class PolyQuiltPreferences(AddonPreferences):
         min = 0,
         max = 16,
         default=0,
-    )
+    ) # type: ignore
 
     brush_size : bpy.props.FloatProperty(
         name="Brush Size",
         description="Brush Size",
         default=50.0,
         min=5.0,
-        max=200.0)
+        max=200.0) # type: ignore
 
     brush_strength : bpy.props.FloatProperty(
         name="Brush Strength",
         description="Brush Strength",
         default=0.5,
         min=0.0,
-        max=1.0)
+        max=1.0) # type: ignore
 
     fix_to_x_zero : bpy.props.BoolProperty(
               name = "fix_to_x_zero",
               default = False,
               description="Fix X=0",
-            )
+            ) # type: ignore
 
     fix_sharp_edge : bpy.props.BoolProperty(
               name = "fix_sharp_edge" ,
               default = True,
               description="Fix Sharp Edge",
-            )
+            ) # type: ignore
 
     fix_bound_edge : bpy.props.BoolProperty(
               name = "fix_bound_edge" ,
               default = False,
               description="Fix Bound Edge",
-            )
+            ) # type: ignore
 
     fix_path_end : bpy.props.BoolProperty(
               name = "fix_path_end" ,
               default = False,
               description="Fix Path End",
-            )
+            ) # type: ignore
 
     only_select : bpy.props.BoolProperty(
               name = "only_select" ,
               default = False,
               description="Only Select",
-            )
+            ) # type: ignore
 
     space_drag_op : bpy.props.EnumProperty(
         name="Space Drag Operation",
@@ -279,20 +279,20 @@ class PolyQuiltPreferences(AddonPreferences):
                ('SELECT_BOX' , "Select Box", "" ) ,
                ('SELECT_LASSO' , "Select Lasso", "" ) ],
         default='ORBIT',
-    )
+    ) # type: ignore
 
     vertex_dissolve_angle : FloatProperty(
         name="Vertex Dessolve Angle",
         description="Vertex Dessolve Angle",
         default= 160,
         min=0,
-        max=180)
+        max=180) # type: ignore
 
     keymap_setting_expanded : BoolProperty(
         name="Keymap",
         description="Keymap",
         default=False
-    )
+    ) # type: ignore
 
     keymap_category : EnumProperty(
         name="Category",
@@ -307,7 +307,7 @@ class PolyQuiltPreferences(AddonPreferences):
             ('PolyQuilt:Brush', "Brush", ""),
         ],
         default='PolyQuilt'
-    )    
+    ) # type: ignore
 
 
     def draw(self, context):
