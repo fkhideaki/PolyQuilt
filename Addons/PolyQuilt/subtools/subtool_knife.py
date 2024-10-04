@@ -49,7 +49,7 @@ class SubToolKnife(SubTool) :
         
         if event.type == 'MOUSEMOVE':
             if( self.startPos - self.endPos ).length > 2 :
-                self.CalcKnife( context,self.startPos,self.endPos )
+                self.CalcKnife(context, self.startPos, self.endPos)
         elif event.type == 'RIGHTMOUSE' :
             if event.value == 'RELEASE' :
                 return 'FINISHED'
@@ -74,29 +74,30 @@ class SubToolKnife(SubTool) :
         if self.cut_edges_mirror :
             draw_util.draw_pivots3D( list(self.cut_edges_mirror.values()) , 1 , self.color_delete(0.5) )
 
-    def CalcKnife( self ,context,startPos , endPos ) :
-        slice_plane , plane0 , plane1 = self.make_slice_planes(context,startPos , endPos)
+    def CalcKnife(self, context, e0, e1) :
+        slice_plane, plane0, plane1 = self.make_slice_planes(context, e0, e1)
         self.cut_edges = self.calc_slice(slice_plane, plane0, plane1)
         if self.bmo.is_mirror_mode :
             slice_plane.x_mirror()
             plane0.x_mirror()
             plane1.x_mirror()
-            self.cut_edges_mirror = self.calc_slice( slice_plane , plane0 , plane1 )
+            self.cut_edges_mirror = self.calc_slice(slice_plane, plane0, plane1)
 
-    def make_slice_planes( self , context, startPos , endPos ):
-        slice_plane_world = pqutil.Plane.from_screen_slice( context,startPos , endPos )
-        slice_plane_object = slice_plane_world.world_to_object( self.bmo.obj )
+    def make_slice_planes(self, context, e0, e1):
+        obj = self.bmo.obj
+        slice_plane_world = pqutil.Plane.from_screen_slice(context, e0, e1)
+        slice_plane_object = slice_plane_world.world_to_object(obj)
 
-        ray0 = pqutil.Ray.from_screen( context , startPos ).world_to_object( self.bmo.obj )
-        ray1 = pqutil.Ray.from_screen( context , endPos ).world_to_object( self.bmo.obj )
+        ray0 = pqutil.Ray.from_screen(context, e0).world_to_object(obj)
+        ray1 = pqutil.Ray.from_screen(context, e1).world_to_object(obj)
         vec0 = slice_plane_object.vector.cross(ray0.vector).normalized()
         vec1 = slice_plane_object.vector.cross(ray1.vector).normalized()
-        plane0 = pqutil.Plane( ray0.origin - vec0 * 0.001 , vec0 )
-        plane1 = pqutil.Plane( ray1.origin + vec1 * 0.001 , vec1 )
+        plane0 = pqutil.Plane(ray0.origin - vec0 * 0.001, vec0)
+        plane1 = pqutil.Plane(ray1.origin + vec1 * 0.001, vec1)
 
         return slice_plane_object , plane0 , plane1
 
-    def calc_slice( self ,slice_plane , plane0 , plane1 ) :
+    def calc_slice(self, slice_plane, plane0, plane1):
         slice_plane_intersect_line = slice_plane.intersect_line
         plane0_distance_point = plane0.distance_point
         plane1_distance_point = plane1.distance_point
@@ -126,10 +127,10 @@ class SubToolKnife(SubTool) :
                 ed[edge] = matrix @ p
         return ed
 
-    def DoKnife( self ,context,startPos , endPos ) :
+    def DoKnife(self, context, e0, e1) :
         bm = self.bmo.bm
         threshold = bpy.context.scene.tool_settings.double_threshold
-        plane , plane0 , plane1 = self.make_slice_planes(context,startPos , endPos)
+        plane , plane0 , plane1 = self.make_slice_planes(context, e0, e1)
         faces = [ face for face in self.bmo.faces if not face.hide ]
         elements = list(self.cut_edges.keys()) + faces
 
@@ -137,8 +138,8 @@ class SubToolKnife(SubTool) :
             bm,
             geom=elements,
             dist=threshold,
-            plane_co=plane.origin ,
-            plane_no=plane.vector ,
+            plane_co=plane.origin,
+            plane_no=plane.vector,
             use_snap_center=True,
             clear_outer=False,
             clear_inner=False)
@@ -149,7 +150,7 @@ class SubToolKnife(SubTool) :
             QSnap.adjust_verts( self.bmo.obj , [ v for v in ret['geom_cut'] if isinstance( v , bmesh.types.BMVert ) ] , self.preferences.fix_to_x_zero )
 
         if self.bmo.is_mirror_mode :
-            slice_plane , plane0 , plane1 = self.make_slice_planes(context,startPos , endPos)
+            slice_plane , plane0 , plane1 = self.make_slice_planes(context,e0 , e1)
             slice_plane.x_mirror()
             plane0.x_mirror()
             plane1.x_mirror()

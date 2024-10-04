@@ -94,15 +94,15 @@ class Plane :
         vector_obj = matrix.inverted().transposed().to_3x3() @ self.vector
         return Plane( origin_obj , vector_obj )
 
-    def reverse( sefl ) :
+    def reverse(self) :
         self.vector = -self.vector
 
-    def reversed( sefl ) :
+    def reversed(self) :
         return Plane( self.origin , - self.vector )
 
     def x_mirror(self) :
-        self.origin = Vector( (-self.origin.x,self.origin.y,self.origin.z) )
-        self.vector = Vector( (-self.vector.x,self.vector.y,self.vector.z) )
+        self.origin = Vector((-self.origin.x, self.origin.y, self.origin.z))
+        self.vector = Vector((-self.vector.x, self.vector.y, self.vector.z))
 
 class Ray :
     def __init__( self , origin : mathutils.Vector , vector  : mathutils.Vector ) :
@@ -116,7 +116,7 @@ class Ray :
         region = context.region
         origin = region_2d_to_origin_3d(region, rv3d, coord)
         vector = region_2d_to_vector_3d(region, rv3d, coord)
-        return Ray(origin,vector)
+        return Ray(origin, vector)
 
     @staticmethod
     def from_world_to_screen(context, world_pos : mathutils.Vector):
@@ -224,24 +224,24 @@ def region_2d_to_vector_3d(region, rv3d, coord):
     from mathutils import Vector
 
     viewinv = rv3d.view_matrix.inverted()
-    if rv3d.is_perspective:
-        persinv = rv3d.perspective_matrix.inverted()
-        width = region.width
-        height = region.height
-
-        out = Vector(((2.0 * coord[0] / width) - 1.0,
-                      (2.0 * coord[1] / height) - 1.0,
-                      -0.5
-                      ))
-
-        w = out.dot(persinv[3].xyz) + persinv[3][3]
-
-        view_vector = ((persinv @ out) / w) - viewinv.translation
-    else:
+    if not rv3d.is_perspective:
         view_vector = -viewinv.col[2].xyz
+        view_vector.normalize()
+        return view_vector
 
+    persinv = rv3d.perspective_matrix.inverted()
+    width = region.width
+    height = region.height
+
+    out = Vector(((2.0 * coord[0] / width) - 1.0,
+                    (2.0 * coord[1] / height) - 1.0,
+                    -0.5
+                    ))
+
+    w = out.dot(persinv[3].xyz) + persinv[3][3]
+
+    view_vector = ((persinv @ out) / w) - viewinv.translation
     view_vector.normalize()
-
     return view_vector
 
 
@@ -275,28 +275,27 @@ def region_2d_to_origin_3d(region, rv3d, coord, clamp=None):
     viewinv = rv3d.view_matrix.inverted()
 
     if rv3d.is_perspective:
-        origin_start = viewinv.translation.copy()
-    else:
-        persmat = rv3d.perspective_matrix.copy()
-        dx = (2.0 * coord[0] / region.width) - 1.0
-        dy = (2.0 * coord[1] / region.height) - 1.0
-        persinv = persmat.inverted()
-        origin_start = ((persinv.col[0].xyz * dx) +
-                        (persinv.col[1].xyz * dy) +
-                        persinv.translation)
+        return viewinv.translation.copy()
 
-        if clamp != 0.0:
-            if rv3d.view_perspective != 'CAMERA':
-                # this value is scaled to the far clip already
-                origin_offset = persinv.col[2].xyz
-                if clamp is not None:
-                    if clamp < 0.0:
-                        origin_offset.negate()
-                        clamp = -clamp
-                    if origin_offset.length > clamp:
-                        origin_offset.length = clamp
+    persmat = rv3d.perspective_matrix.copy()
+    dx = (2.0 * coord[0] / region.width) - 1.0
+    dy = (2.0 * coord[1] / region.height) - 1.0
+    persinv = persmat.inverted()
+    origin_start = ((persinv.col[0].xyz * dx) +
+                    (persinv.col[1].xyz * dy) +
+                    persinv.translation)
 
-                origin_start -= origin_offset
+    if clamp != 0.0:
+        if rv3d.view_perspective != 'CAMERA':
+            origin_offset = persinv.col[2].xyz
+            if clamp is not None:
+                if clamp < 0.0:
+                    origin_offset.negate()
+                    clamp = -clamp
+                if origin_offset.length > clamp:
+                    origin_offset.length = clamp
+
+            origin_start -= origin_offset
 
     return origin_start
 
