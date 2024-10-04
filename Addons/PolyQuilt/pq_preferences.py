@@ -268,6 +268,12 @@ class PolyQuiltPreferences(AddonPreferences):
               description="Only Select",
             ) # type: ignore
 
+    knife_only_select : bpy.props.BoolProperty(
+              name = "knife_only_select" ,
+              default = False,
+              description="Knife Only Select",
+            ) # type: ignore
+
     space_drag_op : bpy.props.EnumProperty(
         name="Space Drag Operation",
         description="Space Drag Operation",

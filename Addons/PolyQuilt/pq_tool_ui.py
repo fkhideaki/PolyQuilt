@@ -21,6 +21,8 @@ import rna_keymap_ui
 from bpy.app.translations import pgettext_iface as iface_
 from bpy.app.translations import contexts as i18n_contexts
 from bpy.types import AddonPreferences
+
+
 def draw_settings_ui(context, layout, tool  , ui ):
     props = tool.operator_properties("mesh.poly_quilt")
     preferences = bpy.context.preferences.addons[__package__].preferences
@@ -85,6 +87,13 @@ def draw_settings_ui(context, layout, tool  , ui ):
         "only_select",
         toggle = True,
         text = "Only Select",
+        icon_only = False)
+    
+    layout.prop(
+        preferences,
+        "knife_only_select",
+        toggle = True,
+        text = "Knife Only Select",
         icon_only = False)
 
     if "MASTER" in ui or "EXTRUDE" in ui :
@@ -205,6 +214,14 @@ class VIEW3D_PT_tools_polyquilt_options( Panel):
         layout.prop(
             preferences,
             "only_select",
+            toggle = True,
+            text = "Only Select",
+            icon_only = False)
+
+        layout.label( text = "Knife" )
+        layout.prop(
+            preferences,
+            "knife_only_select",
             toggle = True,
             text = "Only Select",
             icon_only = False)

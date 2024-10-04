@@ -114,8 +114,10 @@ class SubToolKnife(SubTool) :
 
             v0 = edge.verts[0]
             v1 = edge.verts[1]
-            if rvm.dot(v0.normal) > 0 or rvm.dot(v1.normal) > 0:
-                continue
+
+            if self.preferences.knife_only_select:
+                if not edge.select:
+                    continue
 
             p0 = v0.co
             p1 = v1.co
