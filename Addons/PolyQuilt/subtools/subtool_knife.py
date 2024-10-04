@@ -75,62 +75,68 @@ class SubToolKnife(SubTool) :
             draw_util.draw_pivots3D( list(self.cut_edges_mirror.values()) , 1 , self.color_delete(0.5) )
 
     def CalcKnife(self, context, e0, e1) :
-        slice_plane, plane0, plane1 = self.make_slice_planes(context, e0, e1)
-        self.cut_edges = self.calc_slice(slice_plane, plane0, plane1)
+        slice_plane, plane0, plane1, ray0, ray1 = self.make_slice_planes(context, e0, e1)
+        self.cut_edges = self.calc_slice(slice_plane, plane0, plane1, ray0, ray1)
         if self.bmo.is_mirror_mode :
             slice_plane.x_mirror()
             plane0.x_mirror()
             plane1.x_mirror()
-            self.cut_edges_mirror = self.calc_slice(slice_plane, plane0, plane1)
+            self.cut_edges_mirror = self.calc_slice(slice_plane, plane0, plane1, ray0, ray1)
 
     def make_slice_planes(self, context, e0, e1):
         obj = self.bmo.obj
         slice_plane_world = pqutil.Plane.from_screen_slice(context, e0, e1)
-        slice_plane_object = slice_plane_world.world_to_object(obj)
+        slice_plane = slice_plane_world.world_to_object(obj)
 
         ray0 = pqutil.Ray.from_screen(context, e0).world_to_object(obj)
         ray1 = pqutil.Ray.from_screen(context, e1).world_to_object(obj)
-        vec0 = slice_plane_object.vector.cross(ray0.vector).normalized()
-        vec1 = slice_plane_object.vector.cross(ray1.vector).normalized()
+        vec0 = slice_plane.vector.cross(ray0.vector).normalized()
+        vec1 = slice_plane.vector.cross(ray1.vector).normalized()
         plane0 = pqutil.Plane(ray0.origin - vec0 * 0.001, vec0)
         plane1 = pqutil.Plane(ray1.origin + vec1 * 0.001, vec1)
 
-        return slice_plane_object , plane0 , plane1
+        return slice_plane, plane0, plane1, ray0, ray1
 
-    def calc_slice(self, slice_plane, plane0, plane1):
+    def calc_slice(self, slice_plane, plane0, plane1, ray0, ray1):
+        rv0 = ray0.vector
+        rv1 = ray1.vector
+        rvm = rv0 + rv1
         slice_plane_intersect_line = slice_plane.intersect_line
         plane0_distance_point = plane0.distance_point
         plane1_distance_point = plane1.distance_point
         epsilon = sys.float_info.epsilon
-        def chk(edge) :
-            p0 = edge.verts[0].co
-            p1 = edge.verts[1].co
-            p = slice_plane_intersect_line(p0, p1)
-            if not p:
-                return None
-
-            a0 = plane0_distance_point(p)
-            a1 = plane1_distance_point(p)
-            if (a0 > epsilon and a1 > epsilon):
-                return None
-            if (a0 < -epsilon and a1 < -epsilon):
-                return None
-            return p
 
         matrix = self.bmo.obj.matrix_world
         ed = {}
         for edge in self.bmo.edges:
             if edge.hide:
                 continue
-            p = chk(edge)
-            if p:
-                ed[edge] = matrix @ p
+
+            v0 = edge.verts[0]
+            v1 = edge.verts[1]
+            if rvm.dot(v0.normal) > 0 or rvm.dot(v1.normal) > 0:
+                continue
+
+            p0 = v0.co
+            p1 = v1.co
+            p = slice_plane_intersect_line(p0, p1)
+            if not p:
+                continue
+
+            a0 = plane0_distance_point(p)
+            a1 = plane1_distance_point(p)
+            if (a0 > epsilon and a1 > epsilon):
+                continue
+            if (a0 < -epsilon and a1 < -epsilon):
+                continue
+
+            ed[edge] = matrix @ p
         return ed
 
-    def DoKnife(self, context, e0, e1) :
+    def DoKnife(self, context, e0, e1 ) :
         bm = self.bmo.bm
         threshold = bpy.context.scene.tool_settings.double_threshold
-        plane , plane0 , plane1 = self.make_slice_planes(context, e0, e1)
+        plane, plane0, plane1, ray0, ray1 = self.make_slice_planes(context, e0, e1)
         faces = [ face for face in self.bmo.faces if not face.hide ]
         elements = list(self.cut_edges.keys()) + faces
 
@@ -150,14 +156,14 @@ class SubToolKnife(SubTool) :
             QSnap.adjust_verts( self.bmo.obj , [ v for v in ret['geom_cut'] if isinstance( v , bmesh.types.BMVert ) ] , self.preferences.fix_to_x_zero )
 
         if self.bmo.is_mirror_mode :
-            slice_plane , plane0 , plane1 = self.make_slice_planes(context,e0 , e1)
+            slice_plane, plane0, plane1, ray0, ray1 = self.make_slice_planes(context,e0 , e1)
             slice_plane.x_mirror()
             plane0.x_mirror()
             plane1.x_mirror()
             self.bmo.UpdateMesh()
-            cut_edges_mirror = self.calc_slice( slice_plane , plane0 , plane1 )
+            cut_edges_mirror = self.calc_slice(slice_plane, plane0, plane1, ray0, ray1)
             if cut_edges_mirror :
-                faces = [ face for face in self.bmo.faces if face.hide is False ]          
+                faces = [ face for face in self.bmo.faces if face.hide is False ]
                 elements = list(cut_edges_mirror.keys()) + faces[:]
                 ret = bmesh.ops.bisect_plane(bm,geom=elements,dist=threshold,plane_co= slice_plane.origin ,plane_no= slice_plane.vector ,use_snap_center=False,clear_outer=False,clear_inner=False)
                 for e in ret['geom_cut'] :
