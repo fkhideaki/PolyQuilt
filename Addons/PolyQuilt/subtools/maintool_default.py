@@ -40,7 +40,7 @@ class MainToolDefault(MainTool) :
         super().__init__(op,currentTarget, button)
 
     @staticmethod
-    def LMBEventCallback(self , event ):
+    def LMBEventCallback(self , event):
         self.debugStr = str(event.type)
 
         if event.type == MBEventType.Release :
@@ -48,7 +48,7 @@ class MainToolDefault(MainTool) :
 
         elif event.type == MBEventType.Click :
             if self.currentTarget.isVert or self.currentTarget.isEmpty or self.currentTarget.isEdge:
-                self.SetSubTool( SubToolMakePoly(self.operator,self.currentTarget , self.mouse_pos ) )
+                self.SetSubTool(SubToolMakePoly(self.operator, self.currentTarget, self.mouse_pos))
 
         elif event.type == MBEventType.LongClick :
             if self.currentTarget.isVert :

@@ -189,7 +189,7 @@ class SubToolRoot :
 
 class MainTool(SubToolRoot) :
     def __init__(self,op,currentTarget, button , no_hold = False ) :
-        super().__init__(op, button)        
+        super().__init__(op, button)
         self.currentTarget = currentTarget
         self.LMBEvent = ButtonEventUtil( button ,self, self.LMBEventCallback , op , True , no_hold )
         self.isExit = False

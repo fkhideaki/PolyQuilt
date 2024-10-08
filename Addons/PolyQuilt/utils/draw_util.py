@@ -19,8 +19,6 @@ import bmesh
 import math
 import copy
 import mathutils
-import bpy_extras
-import collections
 from gpu_extras.batch import batch_for_shader
 from .pqutil import *
 from .dpi import *
@@ -404,7 +402,8 @@ def drawElementHilight3DFunc(obj, element, radius, width, alpha, color = (1,1,1,
 
 def DrawFont( text , size , positon , offset = (0,0) ) :
     font_id = 0
-    blf.size(font_id, size, dpi() )
+    #blf.size(font_id, size, dpi())
+    blf.size(font_id, size)
     w,h = blf.dimensions(font_id, text )
     blf.position(font_id, positon[0] - w / 2 + offset[0] * dpm() , positon[1] + h + offset[1] * dpm() , 0)
     blf.draw(font_id, text )

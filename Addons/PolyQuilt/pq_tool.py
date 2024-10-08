@@ -28,8 +28,8 @@ class ToolPolyQuiltBase(WorkSpaceTool):
     bl_widget = "MESH_GGT_PQ_Preselect"
 
     @staticmethod
-    def tool_keymaps( main_tool , shift = ["NONE"] , ctrl = ["NONE"] , alt = ["NONE"] ) :
-        def keyitem( mods , tool ) :
+    def tool_keymaps(main_tool, shift = ["NONE"], ctrl = ["NONE"], alt = ["NONE"]):
+        def keyitem(mods, tool):
             key = {
                 "type": 'LEFTMOUSE',
                 "value": 'PRESS',
@@ -37,10 +37,10 @@ class ToolPolyQuiltBase(WorkSpaceTool):
                 "ctrl" : 'c' in mods,
                 "alt" : 'a' in mods,
                 "oskey": 'o' in mods}
-            prop = {"properties": [("tool_mode", tool[0] )]}
+            prop = {"properties": [("tool_mode", tool[0])]}
             if len(tool) > 1 and tool[0] == 'BRUSH' :
-                prop["properties"].append( ('brush_type' ,  tool[1] ) )
-            item = ("mesh.poly_quilt", key , prop )
+                prop["properties"].append(('brush_type' , tool[1]))
+            item = ("mesh.poly_quilt", key, prop)
             return item
 
         def switchMode(tool, key):
@@ -69,7 +69,7 @@ class ToolPolyQuiltBase(WorkSpaceTool):
         )
 
     @classmethod
-    def draw_settings( cls ,context, layout, tool):
+    def draw_settings(cls,context, layout, tool):
         reg = context.region.type
 
 #       keyconfigs = context.window_manager.keyconfigs.user            

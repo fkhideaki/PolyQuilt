@@ -80,11 +80,11 @@ class ButtonEventUtil :
         return False
 
     def Update( self , context , event  ) :
-        self.mouse_pos = mathutils.Vector((event.mouse_region_x, event.mouse_region_y))                    
+        self.mouse_pos = mathutils.Vector((event.mouse_region_x, event.mouse_region_y))
         if event.type == self.button:
             if event.value == 'PRESS':
                 if self.Press is False :
-                    self.PressPos = self.mouse_pos                    
+                    self.PressPos = self.mouse_pos
                     self.PressTime = time.time()
                     if not self.no_hold :
                         self.Press = True
