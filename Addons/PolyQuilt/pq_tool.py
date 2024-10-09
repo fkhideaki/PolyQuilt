@@ -62,8 +62,8 @@ class ToolPolyQuiltBase(WorkSpaceTool):
 
             switchMode('mesh_tool.poly_quilt', 'ONE'),
             switchMode('mesh_tool.poly_quilt_brush', 'TWO'),
-            switchMode('mesh_tool.poly_quilt_knife', 'THREE'),
-            switchMode('mesh_tool.poly_quilt_delete', 'FOUR'),
+            switchMode('mesh_tool.poly_quilt_delete', 'THREE'),
+            switchMode('mesh_tool.poly_quilt_knife', 'FOUR'),
 
             ("mesh.poly_quilt_daemon", {"type": 'MOUSEMOVE', "value": 'ANY' }, {"properties": []}),
         )
