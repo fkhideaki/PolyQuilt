@@ -97,33 +97,38 @@ class QMeshHighlight :
         pj_matrix = rv3d.perspective_matrix @ self.pqo.obj.matrix_world
         self.checkDirty()
 
-        if forced == True or pj_matrix != self.current_matrix :
-            region = context.region
-            halfW = region.width / 2.0
-            halfH = region.height / 2.0
-            mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
-            mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
-            matrix = mat_scaleX @ mat_scaleY @ pj_matrix
-            halfWH = Vector( (halfW,halfH) )
+        if not forced and pj_matrix == self.current_matrix:
+            return
 
-            def ProjVert( vt ) :
-                pv = matrix @ vt.co.to_4d()
-                if pv[3] == 0.0:
-                    return  None
-                return pv.to_2d() / pv[3] + halfWH
+        region = context.region
+        halfW = region.width / 2.0
+        halfH = region.height / 2.0
+        mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
+        mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
+        matrix = mat_scaleX @ mat_scaleY @ pj_matrix
+        halfWH = Vector( (halfW,halfH) )
 
-            verts = self.pqo.bm.verts
-            viewPos = { p : ProjVert(p) for p in verts }
+        viewPos = {}
+        for p in self.pqo.bm.verts:
+            pv = matrix @ p.co.to_4d()
+            if pv[3] > 0.0:
+                v2 = pv.to_2d() / pv[3] + halfWH
+                viewPos[p] = v2
 
-            edges = self.pqo.bm.edges
-            viewEdges = { e : [ viewPos[e.verts[0]] , viewPos[e.verts[1]] ] for e in edges if not e.hide }
+        viewEdges = {}
+        for e in self.pqo.bm.edges:
+            if e.hide:
+                continue
+            p0 = viewPos[e.verts[0]]
+            p1 = viewPos[e.verts[1]]
+            viewEdges[e] = [p0, p1]
 
-            self.__viewPosEdges = { e : v for e , v in viewEdges.items() if None not in v }
-            self.__viewPosVerts = { v : p for v,p in viewPos.items() if p and not v.hide }
-            self.__boundaryViewPosEdges = None
-            self.__boundaryViewPosVerts = None
+        self.__viewPosEdges = { e : v for e, v in viewEdges.items() if None not in v }
+        self.__viewPosVerts = { v : p for v, p in viewPos.items() if p and not v.hide }
+        self.__boundaryViewPosEdges = None
+        self.__boundaryViewPosVerts = None
 
-            self.current_matrix = pj_matrix
+        self.current_matrix = pj_matrix
 
 
     def CollectVerts(self, coord, radius : float, ignore = [], edgering = False, backface_culling = True) -> ElementItem :
