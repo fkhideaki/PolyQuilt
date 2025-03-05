@@ -108,15 +108,15 @@ class QMeshHighlight :
 
             def ProjVert( vt ) :
                 pv = matrix @ vt.co.to_4d()
-                return pv.to_2d() / pv[3] + halfWH if pv[3] > 0.0 else None
+                if pv[3] == 0.0:
+                    return  None
+                return pv.to_2d() / pv[3] + halfWH
 
             verts = self.pqo.bm.verts
             viewPos = { p : ProjVert(p) for p in verts }
-#           viewPos = compute( verts , pj_matrix , region.width , region.height )
 
             edges = self.pqo.bm.edges
             viewEdges = { e : [ viewPos[e.verts[0]] , viewPos[e.verts[1]] ] for e in edges if not e.hide }
-#           viewEdges = { e : [ viewPos[v1] , viewPos[v2] ] for e , (v1,v2) in [ (e , e.verts) for e in edges if not e.hide ] }
 
             self.__viewPosEdges = { e : v for e , v in viewEdges.items() if None not in v }
             self.__viewPosVerts = { v : p for v,p in viewPos.items() if p and not v.hide }
