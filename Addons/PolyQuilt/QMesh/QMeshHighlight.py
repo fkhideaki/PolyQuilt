@@ -119,8 +119,12 @@ class QMeshHighlight :
         for e in self.pqo.bm.edges:
             if e.hide:
                 continue
-            p0 = viewPos[e.verts[0]]
-            p1 = viewPos[e.verts[1]]
+            ev0 = e.verts[0]
+            ev1 = e.verts[1]
+            if not ev0 in viewPos or not ev1 in viewPos:
+                continue
+            p0 = viewPos[ev0]
+            p1 = viewPos[ev1]
             viewEdges[e] = [p0, p1]
 
         self.__viewPosEdges = { e : v for e, v in viewEdges.items() if None not in v }
