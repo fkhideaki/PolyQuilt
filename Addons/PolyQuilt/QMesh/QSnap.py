@@ -12,12 +12,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-import bmesh
 import math
-import copy
 import mathutils
-import bpy_extras
-import collections
 from mathutils import *
 from .QMeshOperators import *
 from ..utils import pqutil

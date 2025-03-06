@@ -12,25 +12,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-import bmesh
-import math
-import copy
 import mathutils
-import bpy_extras
-import collections
 from mathutils import *
 import numpy as np
 from ..utils import pqutil
 from ..utils.dpi import *
 from .ElementItem import ElementItem
-import time
 
 __all__ = ['QMeshHighlight']
 
 class QMeshHighlight :
     __grobal_tag__ = 0
 
-    def __init__(self,pqo) :
+    def __init__(self, pqo) :
         self.pqo = pqo
         self.__viewPosVerts = None
         self.__viewPosEdges = None
@@ -43,14 +37,14 @@ class QMeshHighlight :
     def viewPosVerts(self):
         self.checkDirty()
         if self.__viewPosVerts == None :
-            self.UpdateView( bpy.context , True )
+            self.UpdatViewHighlight(bpy.context, True)
         return self.__viewPosVerts
 
     @property
     def viewPosEdges(self):
         self.checkDirty()
-        if self.__viewPosEdges == None :
-            self.UpdateView( bpy.context , True )
+        if self.__viewPosEdges == None:
+            self.UpdatViewHighlight(bpy.context, True)
         return self.__viewPosEdges
 
     @property
@@ -64,35 +58,36 @@ class QMeshHighlight :
     def boundaryViewPosEdges(self):
         self.checkDirty()
         if self.__boundaryViewPosEdges == None :
-            self.__boundaryViewPosEdges = { e : p for e , p in self.viewPosEdges.items() if e.is_boundary or e.is_wire }            
+            self.__boundaryViewPosEdges = { e : p for e , p in self.viewPosEdges.items() if e.is_boundary or e.is_wire }
         return self.__boundaryViewPosEdges
 
-    def setDirty( self ) :
+    def setDirty(self):
         QMeshHighlight.__grobal_tag__ = QMeshHighlight.__grobal_tag__ + 1
         self.checkDirty()
 
-    def checkDirty( self ) :
-        if QMeshHighlight.__grobal_tag__ != self.__local_tag__ :
-            if self.__viewPosVerts :
-                del self.__viewPosVerts
-            self.__viewPosVerts = None
+    def checkDirty(self):
+        if QMeshHighlight.__grobal_tag__ == self.__local_tag__:
+            return
+        if self.__viewPosVerts:
+            del self.__viewPosVerts
+        self.__viewPosVerts = None
 
-            if self.__viewPosEdges :
-                del self.__viewPosEdges
-            self.__viewPosEdges = None
+        if self.__viewPosEdges:
+            del self.__viewPosEdges
+        self.__viewPosEdges = None
 
-            if self.__boundaryViewPosVerts :
-                del self.__boundaryViewPosVerts
-            self.__boundaryViewPosVerts = None
+        if self.__boundaryViewPosVerts:
+            del self.__boundaryViewPosVerts
+        self.__boundaryViewPosVerts = None
 
-            if self.__boundaryViewPosEdges :
-                del self.__boundaryViewPosEdges
-            self.__boundaryViewPosEdges = None
+        if self.__boundaryViewPosEdges:
+            del self.__boundaryViewPosEdges
+        self.__boundaryViewPosEdges = None
 
-            self.current_matrix = None
-            self.__local_tag__ = QMeshHighlight.__grobal_tag__
+        self.current_matrix = None
+        self.__local_tag__ = QMeshHighlight.__grobal_tag__
 
-    def UpdateView( self ,context , forced = False ):
+    def UpdatViewHighlight(self, context, forced):
         rv3d = context.region_data
         pj_matrix = rv3d.perspective_matrix @ self.pqo.obj.matrix_world
         self.checkDirty()
@@ -106,17 +101,19 @@ class QMeshHighlight :
         mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
         mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
         matrix = mat_scaleX @ mat_scaleY @ pj_matrix
-        halfWH = Vector( (halfW,halfH) )
+        halfWH = Vector((halfW, halfH))
+
+        pqbm = self.pqo.bm
 
         viewPos = {}
-        for p in self.pqo.bm.verts:
+        for p in pqbm.verts:
             pv = matrix @ p.co.to_4d()
             if pv[3] > 0.0:
                 v2 = pv.to_2d() / pv[3] + halfWH
                 viewPos[p] = v2
 
         viewEdges = {}
-        for e in self.pqo.bm.edges:
+        for e in pqbm.edges:
             if e.hide:
                 continue
             ev0 = e.verts[0]
@@ -138,7 +135,9 @@ class QMeshHighlight :
     def CollectVerts(self, coord, radius : float, ignore = [], edgering = False, backface_culling = True) -> ElementItem :
         p = Vector(coord)
         rr = Vector((radius, 0))
-        verts = self.pqo.bm.verts
+
+        pqbm = self.pqo.bm
+        verts = pqbm.verts
         viewPos = self.viewPosVerts
 
         ray = None
@@ -176,8 +175,6 @@ class QMeshHighlight :
         ray = pqutil.Ray.from_screen( bpy.context , coord )
         ray_distance = ray.distance
         location_3d_to_region_2d = pqutil.location_3d_to_region_2d
-        intersect_line_sphere_2d = geometry.intersect_line_sphere_2d
-        intersect_sphere_sphere_2d = geometry.intersect_sphere_sphere_2d
         intersect_point_line = geometry.intersect_point_line
         matrix_world = self.pqo.obj.matrix_world      
         rr = Vector( (radius,0) )
@@ -194,10 +191,11 @@ class QMeshHighlight :
             if pt > 0 and pt < 1 :
                 if hit - p <= rr :
                     return True
-
             return False
-        edges = self.pqo.bm.edges
-        if edgering :        
+
+        pqbm = self.pqo.bm
+        edges = pqbm.edges
+        if edgering :
             r = [ Conv(e) for e,(p1,p2) in viewPosEdge.items() if len(e.link_faces) <= 1 and intersect( p1 , p2 ) and e not in ignore ]
         else :
             r = [ Conv(e) for e,(p1,p2) in viewPosEdge.items() if intersect( p1 , p2 ) and e in edges and e not in ignore ]
@@ -207,7 +205,7 @@ class QMeshHighlight :
             r = [ i for i in r
                 if not i.element.is_manifold or i.element.is_boundary or
                     i.element.verts[0].normal.dot( ray.vector ) < 0 or i.element.verts[1].normal.dot( ray2.vector ) < 0 ]
-        
+
         s = sorted( r , key=lambda i:(i.coord - p).length_squared )
         return s
 
@@ -216,8 +214,9 @@ class QMeshHighlight :
         ray = pqutil.Ray.from_screen(bpy.context, coord).world_to_object(self.pqo.obj)
         pos, nrm, index, dist = self.pqo.btree.ray_cast(ray.origin, ray.vector)
         prePos = ray.origin
+        pqbm = self.pqo.bm
         while (index is not None):
-            face = self.pqo.bm.faces[index]
+            face = pqbm.faces[index]
             if (prePos - pos).length < 0.00001:
                 break
             prePos = pos
@@ -240,7 +239,7 @@ class QMeshHighlight :
         mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
         mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
         matrix = mat_scaleX @ mat_scaleY @ rv3d.perspective_matrix @ self.pqo.obj.matrix_world
-        halfWH = Vector( (halfW,halfH) )        
+        halfWH = Vector( (halfW,halfH) )
         def ProjVert( vt ) :
             pv = matrix @ vt.co.to_4d()
             return pv.to_2d() / pv[3] + halfWH if pv[3] > 0.0 else None
@@ -260,7 +259,7 @@ class QMeshHighlight :
         mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
         mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
         matrix = mat_scaleX @ mat_scaleY @ rv3d.perspective_matrix @ self.pqo.obj.matrix_world
-        halfWH = Vector( (halfW,halfH) )        
+        halfWH = Vector( (halfW,halfH) )
         def ProjVert( vt ) :
             pv = matrix @ vt.co.to_4d()
             return pv.to_2d() / pv[3] + halfWH if pv[3] > 0.0 else None

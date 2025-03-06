@@ -31,14 +31,14 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         self.DrawHighlight = None
         self.region = None
         self.subtool = None
-        self.tool_table = [None,None,None,None]
+        self.tool_table = [None, None, None, None]
         self.tool = None
 
     def __del__(self) :
         pass
 
     def setup(self):
-        self.bmo = None        
+        self.bmo = None
         self.currentElement = ElementItem.Empty()
 
     def init(self, context, tool) :
@@ -46,12 +46,12 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         self.maintool = maintools[tool.pq_main_tool]
         self.subtool = self.maintool
         self.region = context.region_data
-        self.bmo = QMesh( context.active_object , self.preferences )
+        self.bmo = QMesh(context.active_object, self.preferences)
         self.keyitem = None
         if self.subtool:
             context.window.cursor_set( self.subtool.GetCursor() )
 
-    def exit( self , context, cancel) :
+    def exit(self, context, cancel) :
         pass
 
     def test_select(self, context, location):
@@ -66,9 +66,9 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         if context.region == self.region :
             return -1
         if self.bmo == None :
-            self.bmo = QMesh( context.active_object , self.preferences )
-        self.bmo.CheckValid( context )
-        self.bmo.UpdateView(context)
+            self.bmo = QMesh(context.active_object, self.preferences)
+        self.bmo.CheckValid(context)
+        self.bmo.UpdateViewQM(context)
         QSnap.update(context)
 
         if self.subtool != None :
@@ -115,14 +115,13 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         if self.subtool :
             PQ_GizmoGroup_Base.set_cursor( subtool.GetCursor() )
         else :
-            PQ_GizmoGroup_Base.set_cursor( )
+            PQ_GizmoGroup_Base.set_cursor()
 
         if context.region_data == self.region and self.subtool:
             self.subtool.recive_event( self , context , event )
 
     def get_keyitem( self , shift , ctrl , alt,  oskey ) :
         keymap = bpy.context.window_manager.keyconfigs.user.keymaps["3D View Tool: Edit Mesh, " + self.tool.bl_label]
-        keyitems = [ item for item in keymap.keymap_items if item.idname == 'mesh.poly_quilt' ]
         for item in keymap.keymap_items :
             if item.idname == 'mesh.poly_quilt' and item.active :
                 if [ item.shift , item.ctrl , item.alt,  item.oskey ] == [ shift , ctrl , alt,  oskey ] :
@@ -159,7 +158,7 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
         self.gizmo = None
 
     def __del__(self) :
-        if hasattr( self , "gizmo" ) :               
+        if hasattr( self , "gizmo" ):
             PQ_GizmoGroup_Base.child_gizmos.remove( self.gizmo )
         if not PQ_GizmoGroup_Base.child_gizmos :
             QSnap.remove_ref()
@@ -177,7 +176,7 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
             context.window_manager.gizmo_group_type_unlink_delayed(cls.bl_idname)
             return False
         if not PQ_GizmoGroup_Base.running_polyquilt :
-            context.window.cursor_set( cls.cursor )        
+            context.window.cursor_set( cls.cursor )
         return True
 
     def setup(self, context):
@@ -187,7 +186,7 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
         PQ_GizmoGroup_Base.child_gizmos.append(self.gizmo)
 
     def refresh( self , context ) :
-        if hasattr( self , "gizmo" ) :        
+        if hasattr( self , "gizmo" ) :
             self.gizmo.refresh(context)
 
     @classmethod

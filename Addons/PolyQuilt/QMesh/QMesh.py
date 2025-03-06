@@ -13,11 +13,6 @@
 
 import bpy
 import bmesh
-import math
-import copy
-import mathutils
-import bpy_extras
-import collections
 from mathutils import *
 from .QSnap import QSnap
 import numpy as np
@@ -31,26 +26,26 @@ from .QMeshHighlight import QMeshHighlight
 __all__ = ['QMesh', 'SelectStack']
 
 class QMesh(QMeshOperators) :
-    def __init__(self , obj , preferences) :
+    def __init__(self, obj, preferences) :
         super().__init__(obj, preferences)
         self.highlight = QMeshHighlight(self)
         self.invalid = False
 
-    def UpdateMesh( self , updateHighLight = True ) :
+    def UpdateMesh(self, updateHighLight = True) :
         super().UpdateMesh()
         if updateHighLight :
             self.highlight.setDirty()
 
-    def CheckValid( self , context ) :
+    def CheckValid(self, context) :
         val = super()._CheckValid(context)
-        if val == False or self.invalid :
+        if val == False or self.invalid:
             self.highlight.setDirty()
             self.reload_obj(context)
             self.invalid = False
         return val
 
-    def UpdateView( self ,context , forced = False ):
-        self.highlight.UpdateView(context)
+    def UpdateViewQM(self, context):
+        self.highlight.UpdatViewHighlight(context, False)
 
     def PickElement(self, coord, radius : float, ignore = [], edgering = False, backface_culling = None, elements = ['FACE','EDGE','VERT']) -> ElementItem :
         if backface_culling == None:

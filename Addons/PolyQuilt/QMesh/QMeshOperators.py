@@ -14,11 +14,7 @@
 import bpy
 import bmesh
 import math
-import copy
 import mathutils
-import bpy_extras
-import collections
-import time
 from mathutils import *
 from ..utils import pqutil
 from ..utils import draw_util
@@ -26,7 +22,7 @@ from .ElementItem import *
 from ..utils.dpi import *
 
 class QMeshOperators :
-    def __init__(self,obj , preferences) :
+    def __init__(self, obj, preferences):
         self.obj = obj
         self.mesh = obj.data
         self.bm = bmesh.from_edit_mesh(self.mesh)
@@ -35,13 +31,14 @@ class QMeshOperators :
         self.__kdtree = None
         self.preferences = preferences
 
-
-    def _CheckValid( self , context ) :
+    def _CheckValid(self, context):
         active_obj = context.active_object
-        if self.obj != context.active_object or self.mesh != context.active_object.data or self.bm.is_valid is False :
+        if self.obj != active_obj or self.mesh != active_obj.data:
+            return False
+        if not self.bm.is_valid:
             return False
         bm = bmesh.from_edit_mesh(self.mesh)
-        if bm != self.bm :
+        if bm != self.bm:
             return False
 
         return True
@@ -50,19 +47,19 @@ class QMeshOperators :
         # ensure系は一応ダーティフラグチェックしてるので無暗に呼んでいいっぽい？
         self.bm.faces.ensure_lookup_table()
         self.bm.verts.ensure_lookup_table()
-        self.bm.edges.ensure_lookup_table()      
+        self.bm.edges.ensure_lookup_table()
 
-    def reload_obj( self , context ) :
+    def reload_obj(self, context):
         self.obj = context.active_object
-        if self.obj != None :
+        if self.obj != None:
             self.mesh = self.obj.data
             self.bm = bmesh.from_edit_mesh(self.mesh)
             self.ensure_lookup_table()
-        else :
+        else:
             self.mesh = None
             self.bm = None
         self.current_matrix = None
-        self.reload_tree()            
+        self.reload_tree()
 
     def reload_tree( self ) :
         if self.__btree :
@@ -84,7 +81,7 @@ class QMeshOperators :
 #       self.obj.update_from_editmode()
         self.__btree = None
         self.__kdtree = None
-        self.current_matrix = None    
+        self.current_matrix = None
 
     @property
     def btree(self):
