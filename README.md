@@ -6,6 +6,7 @@ https://sakana3.github.io/PolyQuilt/
 
 ### 標準版との違い
 - Blender4.1以降に対応
+  - 4.4 対応中
 - 安定性向上
 - 若干の機能追加
   - ショートカット追加
