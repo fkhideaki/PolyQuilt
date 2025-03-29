@@ -98,8 +98,8 @@ class QMeshHighlight :
         region = context.region
         halfW = region.width / 2.0
         halfH = region.height / 2.0
-        mat_scaleX = mathutils.Matrix.Scale( halfW , 4 , (1.0, 0.0, 0.0))
-        mat_scaleY = mathutils.Matrix.Scale( halfH , 4 , (0.0, 1.0, 0.0))
+        mat_scaleX = mathutils.Matrix.Scale(halfW, 4, (1.0, 0.0, 0.0))
+        mat_scaleY = mathutils.Matrix.Scale(halfH, 4, (0.0, 1.0, 0.0))
         matrix = mat_scaleX @ mat_scaleY @ pj_matrix
         halfWH = Vector((halfW, halfH))
 

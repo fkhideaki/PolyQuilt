@@ -78,7 +78,7 @@ class ElementItem :
         return None
 
 
-    def setup_mirror( self ) :
+    def setup_mirror(self):
         if self.__qmesh is not None :
             is_mirror_mode = self.__qmesh.is_mirror_mode
             if self.__qmesh.is_mirror_mode :

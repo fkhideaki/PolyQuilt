@@ -21,10 +21,10 @@ from .pq_tool import *
 
 
 
-class PQ_Gizmo_Preselect( bpy.types.Gizmo):
+class PQ_Gizmo_Preselect(bpy.types.Gizmo):
     bl_idname = "MESH_GT_PQ_Preselect"
 
-    def __init__(self) :
+    def __init__(self):
         self.bmo = None
         self.currentElement = None
         self.preferences = bpy.context.preferences.addons[__package__].preferences
@@ -34,14 +34,14 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         self.tool_table = [None, None, None, None]
         self.tool = None
 
-    def __del__(self) :
+    def __del__(self):
         pass
 
     def setup(self):
         self.bmo = None
         self.currentElement = ElementItem.Empty()
 
-    def init(self, context, tool) :
+    def init(self, context, tool):
         self.tool = tool
         self.maintool = maintools[tool.pq_main_tool]
         self.subtool = self.maintool
@@ -51,7 +51,7 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         if self.subtool:
             context.window.cursor_set( self.subtool.GetCursor() )
 
-    def exit(self, context, cancel) :
+    def exit(self, context, cancel):
         pass
 
     def test_select(self, context, location):
@@ -95,13 +95,13 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         if self.DrawHighlight != None :
             self.DrawHighlight()
 
-    def refresh( self , context ) :
+    def refresh( self , context ):
         if self.bmo != None :
             self.bmo.invalid = True
             self.currentElement = ElementItem.Empty()
             self.DrawHighlight = None
 
-    def recive_event( self , context , event ) :
+    def recive_event( self , context , event ):
         subtool = self.maintool
 
         self.keyitem = self.get_keyitem( event.shift , event.ctrl , event.alt,  event.oskey )
@@ -120,7 +120,7 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
         if context.region_data == self.region and self.subtool:
             self.subtool.recive_event( self , context , event )
 
-    def get_keyitem( self , shift , ctrl , alt,  oskey ) :
+    def get_keyitem( self , shift , ctrl , alt,  oskey ):
         keymap = bpy.context.window_manager.keyconfigs.user.keymaps["3D View Tool: Edit Mesh, " + self.tool.bl_label]
         for item in keymap.keymap_items :
             if item.idname == 'mesh.poly_quilt' and item.active :
@@ -129,7 +129,7 @@ class PQ_Gizmo_Preselect( bpy.types.Gizmo):
                         return item
         return None
 
-    def get_attr( self , attr ) :
+    def get_attr(self, attr):
         if self.keyitem :
             if self.keyitem.properties.is_property_set(attr) :
                 return getattr( self.keyitem.properties , attr )
@@ -145,7 +145,7 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
     my_tool = ToolPolyQuiltBase
     bl_idname = "MESH_GGT_PQ_Preselect"
     bl_label = "PolyQuilt Preselect Gizmo"
-    bl_options = {'3D'}    
+    bl_options = {'3D'}
     bl_region_type = 'WINDOW'
     bl_space_type = 'VIEW_3D'
     bl_idname = my_tool.bl_widget
@@ -154,13 +154,13 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
 
     running_polyquilt = False
 
-    def __init__(self) :
+    def __init__(self):
         self.gizmo = None
 
-    def __del__(self) :
-        if hasattr( self , "gizmo" ):
-            PQ_GizmoGroup_Base.child_gizmos.remove( self.gizmo )
-        if not PQ_GizmoGroup_Base.child_gizmos :
+    def __del__(self):
+        if hasattr(self, "gizmo"):
+            PQ_GizmoGroup_Base.child_gizmos.remove(self.gizmo)
+        if not PQ_GizmoGroup_Base.child_gizmos:
             QSnap.remove_ref()
 
     @classmethod
@@ -175,40 +175,40 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
         else:
             context.window_manager.gizmo_group_type_unlink_delayed(cls.bl_idname)
             return False
-        if not PQ_GizmoGroup_Base.running_polyquilt :
-            context.window.cursor_set( cls.cursor )
+        if not PQ_GizmoGroup_Base.running_polyquilt:
+            context.window.cursor_set(cls.cursor)
         return True
 
     def setup(self, context):
         QSnap.add_ref(context)
         self.gizmo = self.gizmos.new(PQ_Gizmo_Preselect.bl_idname)
-        self.gizmo.init(context , self.my_tool )
+        self.gizmo.init(context, self.my_tool)
         PQ_GizmoGroup_Base.child_gizmos.append(self.gizmo)
 
-    def refresh( self , context ) :
-        if hasattr( self , "gizmo" ) :
+    def refresh(self, context) :
+        if hasattr(self, "gizmo") :
             self.gizmo.refresh(context)
 
     @classmethod
-    def set_cursor(cls, cursor = 'DEFAULT' ):
+    def set_cursor(cls, cursor = 'DEFAULT'):
         cls.cursor = cursor
 
     @classmethod
-    def get_gizmo(cls, region ):
+    def get_gizmo(cls, region):
         gizmo = [ i for i in cls.child_gizmos if i.region == region ]
         if gizmo :
             return gizmo[0]
         return None
 
     @classmethod
-    def recive_event( cls , context , event ) :
-        for gizmo in cls.child_gizmos :
-            gizmo.recive_event( context , event)
+    def recive_event(cls, context, event):
+        for gizmo in cls.child_gizmos:
+            gizmo.recive_event(context, event)
 
     @classmethod
-    def depsgraph_update_post( cls , scene ) :
-        for gizmo in cls.child_gizmos :
-            gizmo.refresh( bpy.context )
+    def depsgraph_update_post(cls, scene):
+        for gizmo in cls.child_gizmos:
+            gizmo.refresh(bpy.context)
 
 
 class PQ_GizmoGroup_Preselect(PQ_GizmoGroup_Base):
