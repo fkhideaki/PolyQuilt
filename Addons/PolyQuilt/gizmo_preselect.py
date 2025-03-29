@@ -181,9 +181,10 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
 
     def setup(self, context):
         QSnap.add_ref(context)
-        self.gizmo = self.gizmos.new(PQ_Gizmo_Preselect.bl_idname)
-        self.gizmo.init(context, self.my_tool)
-        PQ_GizmoGroup_Base.child_gizmos.append(self.gizmo)
+        gz = self.gizmos.new(PQ_Gizmo_Preselect.bl_idname)
+        self.gizmo = gz
+        gz.init(context, self.my_tool)
+        PQ_GizmoGroup_Base.child_gizmos.append(gz)
 
     def refresh(self, context) :
         if hasattr(self, "gizmo") :
@@ -195,9 +196,9 @@ class PQ_GizmoGroup_Base(bpy.types.GizmoGroup):
 
     @classmethod
     def get_gizmo(cls, region):
-        gizmo = [ i for i in cls.child_gizmos if i.region == region ]
-        if gizmo :
-            return gizmo[0]
+        for i in cls.child_gizmos:
+            if i.region == region:
+                return i
         return None
 
     @classmethod

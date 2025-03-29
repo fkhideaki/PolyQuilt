@@ -124,7 +124,7 @@ class QMeshHighlight :
             p1 = viewPos[ev1]
             viewEdges[e] = [p0, p1]
 
-        self.__viewPosEdges = { e : v for e, v in viewEdges.items() if None not in v }
+        self.__viewPosEdges = viewEdges
         self.__viewPosVerts = { v : p for v, p in viewPos.items() if p and not v.hide }
         self.__boundaryViewPosEdges = None
         self.__boundaryViewPosVerts = None

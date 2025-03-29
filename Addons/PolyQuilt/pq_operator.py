@@ -231,28 +231,31 @@ class MESH_OT_poly_quilt(bpy.types.Operator):
             return {'CANCELLED'}
 
         gz = PQ_GizmoGroup_Base.get_gizmo(context.region_data)
-        if self.preselect == None or self.preselect.bmo  == None :
-            self.report({'WARNING'}, "Gizmo Error" )
-            return {'CANCELLED'}            
-
-        if self.preselect.currentElement == None :
-            return {'CANCELLED'} 
+        self.preselect = gz
+        if gz == None:
+            self.report({'WARNING'}, "Gizmo Error (no gizmo)")
+            return {'CANCELLED'}
+        if gz.bmo  == None:
+            self.report({'WARNING'}, "Gizmo Error (no bmo)")
+            return {'CANCELLED'}
+        if gz.currentElement == None:
+            return {'CANCELLED'}
 
         if context.space_data.show_gizmo is False :
             self.report({'WARNING'}, "Gizmo is not active.Please check Show Gizmo and try again" )
             return {'CANCELLED'}
 
-        if not self.preselect.currentElement.is_valid :
+        if not gz.currentElement.is_valid :
             self.report({'WARNING'}, "Element data is invalid!" )
             return {'CANCELLED'}
 
-        element = copy.copy(self.preselect.currentElement)
+        element = copy.copy(gz.currentElement)
 
         if element == None or ( element.isEmpty == False and element.is_valid == False ) :
             self.report({'WARNING'}, "Invalid Data..." )
             return {'CANCELLED'}
 
-        self.bmo = self.preselect.bmo
+        self.bmo = gz.bmo
         if self.bmo.obj != context.active_object or self.bmo.bm.is_valid is False :            
             self.report({'WARNING'}, "BMesh Broken..." )
             return {'CANCELLED'}
