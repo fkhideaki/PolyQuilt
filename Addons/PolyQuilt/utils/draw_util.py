@@ -12,7 +12,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-import bgl
 import blf
 import gpu
 import bmesh
@@ -67,90 +66,43 @@ shader2D = gpu.shader.from_builtin('UNIFORM_COLOR')
 shader3D = gpu.shader.from_builtin('UNIFORM_COLOR')
 
 def gl_blend(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_BLEND)
-    else:
-        bgl.glDisable(bgl.GL_BLEND)
-    '''
+    #bgl.glEnable(bgl.GL_BLEND if enable else bgl.GL_BLEND)
     pass
 def gl_line_smooth(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_LINE_SMOOTH)
-    else:
-        bgl.glDisable(bgl.GL_LINE_SMOOTH)
-    '''
+    #bgl.glEnable(bgl.GL_LINE_SMOOTH if enable else bgl.GL_LINE_SMOOTH)
     pass
 def gl_depth_test(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_DEPTH_TEST)
-    else:
-        bgl.glDisable(bgl.GL_DEPTH_TEST)
-    '''
+    #bgl.glEnable(bgl.GL_DEPTH_TEST if enable else bgl.GL_DEPTH_TEST)
     pass
 def gl_polygon_offset_line(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_POLYGON_OFFSET_LINE)
-    else:
-        bgl.glDisable(bgl.GL_POLYGON_OFFSET_LINE)
-    '''
+    #bgl.glEnable(bgl.GL_POLYGON_OFFSET_LINE if enable else bgl.GL_POLYGON_OFFSET_LINE)
     pass
 def gl_polygon_offset_fill(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL)
-    else:
-        bgl.glDisable(bgl.GL_POLYGON_OFFSET_FILL)
-    '''
+    #bgl.glEnable(bgl.GL_POLYGON_OFFSET_FILL if enable else bgl.GL_POLYGON_OFFSET_FILL)
     pass
 def gl_polygon_offset_point(enable):
-    '''
-    if enable:
-        bgl.glEnable(bgl.GL_POLYGON_OFFSET_POINT)
-    else:
-        bgl.glDisable(bgl.GL_POLYGON_OFFSET_POINT)
-    '''
+    #bgl.glEnable(bgl.GL_POLYGON_OFFSET_POINT if enable else bgl.GL_POLYGON_OFFSET_POINT)
     pass
 def gl_line_width(width):
-    '''
-    bgl.glLineWidth(width)
-    '''
+    #bgl.glLineWidth(width)
     pass
 def gl_point_size(sz):
-    '''
-    bgl.glPointSize(width)
-    '''
+    #bgl.glPointSize(width)
     pass
 def gl_depth_mask(enable):
-    '''
-    if enable:
-        bgl.glDepthMask(bgl.GL_TRUE)
-    else:
-        bgl.glDepthMask(bgl.GL_FALSE)
-    '''
+    #bgl.glDepthMask(bgl.GL_TRUE if enable else bgl.GL_FALSE)
     pass
 def gl_depthfunc_lequal():
-    '''
-    bgl.glDepthFunc(bgl.GL_LEQUAL)
-    '''
+    #bgl.glDepthFunc(bgl.GL_LEQUAL)
     pass
 def gl_depthfunc_always():
-    '''
-    bgl.glDepthFunc(bgl.GL_ALWAYS)
-    '''
+    #bgl.glDepthFunc(bgl.GL_ALWAYS)
     pass
 def gl_depthfunc_greater():
-    '''
-    bgl.glDepthFunc(bgl.GL_GREATER)
-    '''
+    #bgl.glDepthFunc(bgl.GL_GREATER)
     pass
 def gl_polygon_offset_1_1():
-    '''
-    bgl.glPolygonOffset(1.0, 1.0)
-    '''
+    #bgl.glPolygonOffset(1.0, 1.0)
     pass
 
 def draw_circle2D( pos , radius , color = (1,1,1,1), fill = False , subdivide = 64 , dpi = True, width : float = 1.0  ):
